@@ -135,12 +135,24 @@ namespace MyAppTests
         {
             // select and launch the browser.
             var browser = await SelectBrowserAsync(browserType);
+
             // Open a new page with an option to ignore HTTPS errors
-            var page = await browser.NewPageAsync(
-              new BrowserNewPageOptions
-              {
-                  IgnoreHTTPSErrors = true,
-              });
+            await using var context = await browser.NewContextAsync(
+                new BrowserNewContextOptions
+                {
+                    IgnoreHTTPSErrors = true
+                }).ConfigureAwait(false);
+
+            // Start tracing before creating the page.
+            await context.Tracing.StartAsync(new TracingStartOptions()
+            {
+                Screenshots = true,
+                Snapshots = true,
+                Sources = true
+            });
+
+            var page = await context.NewPageAsync().ConfigureAwait(false);
+
             page.Should().NotBeNull();
             try
             {
@@ -162,6 +174,12 @@ namespace MyAppTests
             {
                 // Make sure the page is closed 
                 await page.CloseAsync();
+
+                // Stop tracing and save data into a zip archive.
+                await context.Tracing.StopAsync(new TracingStopOptions()
+                {
+                    Path = "trace.zip"
+                });
             }
         }
         /// <summary>

@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Hosting;
-using MyBlazorApp.Server.Controllers;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -29,7 +28,7 @@ public class MyTestClass
 
         // Create the host factory with the App class as parameter and the
         // url we are going to use.
-        using var hostFactory = new WebTestingHostFactory<WeatherForecastController>();
+        using var hostFactory = new WebTestingHostFactory<AssemblyClassLocator>();
         hostFactory
           // Override host configuration to mock stuff if required.
           .WithWebHostBuilder(builder =>
