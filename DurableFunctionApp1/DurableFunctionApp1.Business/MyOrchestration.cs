@@ -21,19 +21,19 @@ namespace DurableFunctionApp1.Business
 
             logger.LogInformation($"Saying hello to {parameter} from RunOrchestrator.");
 
-            outputs.Add(await myActivities.SayHello(parameter));
+            outputs.Add(await myActivities.SayHello(parameter, "comment 1"));
 
             logger.LogInformation($"Saying hello to Tokyo from RunOrchestrator.");
 
-            outputs.Add(await myActivities.SayHello("Tokyo"));
+            outputs.Add(await myActivities.SayHello("Tokyo", "comment 2"));
 
             logger.LogInformation($"Saying hello to Seattle from RunOrchestrator.");
 
-            outputs.Add(await myActivities.SayHello("Seattle"));
+            outputs.Add(await myActivities.SayHello("Seattle", "comment 3"));
 
             logger.LogInformation($"Saying hello to London from RunOrchestrator.");
 
-            outputs.Add(await myActivities.SayHello("London"));
+            outputs.Add(await myActivities.SayHello("London", "comment 4"));
 
             return outputs;
         }

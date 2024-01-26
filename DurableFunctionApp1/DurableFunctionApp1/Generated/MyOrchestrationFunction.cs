@@ -11,6 +11,11 @@ namespace DurableFunctionApp1.Generated
     /// </summary>
     public class MyOrchestrationFunction
     {
+        public record RunOrchestratorPayload
+        {
+            public string Parameter { get; set; }
+        }
+
         private readonly IServiceProvider serviceProvider;
 
         public MyOrchestrationFunction(IServiceProvider serviceProvider)
@@ -20,8 +25,10 @@ namespace DurableFunctionApp1.Generated
 
         [Function(nameof(IMyOrchestration.RunOrchestrator))]
         public Task<List<string>> RunOrchestratorFunction(
-            [OrchestrationTrigger] TaskOrchestrationContext context, string parameter)
+            [OrchestrationTrigger] TaskOrchestrationContext context, RunOrchestratorPayload payload)
         {
+            var parameter = payload.Parameter;
+
             var orchestrationCtx = this.serviceProvider.GetRequiredService<OrchestrationCtx>();
 
             orchestrationCtx.SetContext(context);
@@ -35,6 +42,31 @@ namespace DurableFunctionApp1.Generated
             {
                 orchestrationCtx.SetContext(null);
             }
+        }
+
+        /// <summary>
+        /// Generated
+        /// </summary>
+        public sealed class Client : OrchestrationClientBase, IMyOrchestration
+        {
+            public async Task<List<string>> RunOrchestrator(string parameter)
+            {
+                var payload = new MyOrchestrationFunction.RunOrchestratorPayload
+                {
+                    Parameter = parameter,
+                };
+
+                var instanceId = await Client.ScheduleNewOrchestrationInstanceAsync(
+                    nameof(IMyOrchestration.RunOrchestrator), payload);
+
+                Id = instanceId;
+
+                return default!;
+            }
+        }
+
+        public sealed class ClientFactory : OrchestrationFactory<IMyOrchestration, Client>
+        {
         }
     }
 }

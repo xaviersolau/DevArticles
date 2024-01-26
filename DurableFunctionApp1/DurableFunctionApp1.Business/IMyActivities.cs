@@ -2,6 +2,6 @@
 {
     public interface IMyActivities
     {
-        Task<string> SayHello(string name);
+        Task<string> SayHello(string name, string comment);
     }
 }

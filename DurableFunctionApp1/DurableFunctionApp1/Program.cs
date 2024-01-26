@@ -16,8 +16,6 @@ var host = new HostBuilder()
             options => options
                 .UseOrchestration<IMyOrchestration, MyOrchestration>()
                 .UseActivity<IMyActivities, MyActivities>());
-
-        services.AddMyServicesGenerated();
     })
     .Build();
 

@@ -9,11 +9,13 @@ namespace DurableLib
     {
         private readonly IServiceCollection services;
         private readonly IDictionary<Type, Type> activityFactoryMap;
+        private readonly IList<Type> factoryToRegister;
 
-        public OrchestrationOptions(IServiceCollection services, IDictionary<Type, Type> activityFactoryMap)
+        public OrchestrationOptions(IServiceCollection services, IDictionary<Type, Type> activityFactoryMap, IList<Type> factoryToRegister)
         {
             this.services = services;
             this.activityFactoryMap = activityFactoryMap;
+            this.factoryToRegister = factoryToRegister;
         }
 
         public OrchestrationOptions UseOrchestration<TOrchestrationInterface, TOrchestration>()
@@ -40,6 +42,8 @@ namespace DurableLib
                 });
             }
 
+            factoryToRegister.Add(typeof(IOrchestrationFactory<TOrchestrationInterface>));
+
             return this;
         }
 
@@ -48,6 +52,8 @@ namespace DurableLib
             where TActivity : class, TActivityInterface
         {
             activityFactoryMap.Add(typeof(TActivityInterface), typeof(IActivityFactory<TActivityInterface>));
+
+            factoryToRegister.Add(typeof(IActivityFactory<TActivityInterface>));
 
             services.AddTransient<TActivityInterface, TActivity>();
 

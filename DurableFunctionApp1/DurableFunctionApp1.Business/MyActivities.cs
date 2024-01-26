@@ -11,11 +11,11 @@ namespace DurableFunctionApp1.Business
             this.logger = logger;
         }
 
-        public Task<string> SayHello(string name)
+        public Task<string> SayHello(string name, string comment)
         {
-            logger.LogInformation("Saying hello to {name}.", name);
+            logger.LogInformation("Saying hello to {name} with comment {comment}.", name, comment);
 
-            return Task.FromResult($"Hello {name}!");
+            return Task.FromResult($"Hello {name} with {comment}!");
         }
     }
 }
