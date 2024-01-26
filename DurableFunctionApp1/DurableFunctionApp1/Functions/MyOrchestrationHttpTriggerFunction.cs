@@ -12,11 +12,11 @@ using Microsoft.Extensions.Logging;
 
 namespace DurableFunctionApp1.Functions
 {
-    public class DurableFunction
+    public class MyOrchestrationHttpTriggerFunction
     {
         private readonly IOrchestrationFactory<IMyOrchestration> myOrchestrationFactory;
 
-        public DurableFunction(IOrchestrationFactory<IMyOrchestration> myOrchestrationFactory)
+        public MyOrchestrationHttpTriggerFunction(IOrchestrationFactory<IMyOrchestration> myOrchestrationFactory)
         {
             this.myOrchestrationFactory = myOrchestrationFactory;
         }
