@@ -5,7 +5,7 @@ namespace DurableLib
     /// <summary>
     /// From Lib
     /// </summary>
-    public abstract class ActivitiesClientBase
+    public abstract class ActivityClientBase
     {
         public TaskOrchestrationContext Context { get; init; }
     }

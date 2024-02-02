@@ -30,7 +30,7 @@ namespace DurableFunctionApp1.Generated
         /// <summary>
         /// Generated
         /// </summary>
-        public sealed class Client : ActivitiesClientBase, IMyActivities
+        public sealed class Client : ActivityClientBase, IMyActivities
         {
             public Task<string> SayHello(string name, string comment)
             {
@@ -44,7 +44,7 @@ namespace DurableFunctionApp1.Generated
             }
         }
 
-        public sealed class ClientFactory : ActivitiesFactory<IMyActivities, Client>
+        public sealed class ClientFactory : ActivityFactory<IMyActivities, Client>
         {
         }
     }

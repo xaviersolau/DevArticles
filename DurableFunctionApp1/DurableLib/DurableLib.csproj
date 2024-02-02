@@ -11,4 +11,8 @@
     <PackageReference Include="Microsoft.DurableTask.Client" Version="1.1.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\DurableLib.Abstractions\DurableLib.Abstractions.csproj" />
+  </ItemGroup>
+
 </Project>

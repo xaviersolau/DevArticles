@@ -5,10 +5,10 @@ namespace DurableLib
     /// <summary>
     /// From Lib
     /// </summary>
-    public class ActivitiesFactory<TActivity, TClient> : IActivityFactory<TActivity>
-        where TClient : ActivitiesClientBase, TActivity, new()
+    public class ActivityFactory<TActivity, TClient> : IActivityFactory<TActivity>
+        where TClient : ActivityClientBase, TActivity, new()
     {
-        public object GetActivitiesObject(TaskOrchestrationContext context)
+        public object GetActivityObject(TaskOrchestrationContext context)
         {
             var client = new TClient()
             {

@@ -44,7 +44,7 @@ namespace DurableLib
             {
                 var activityFactory = (IActivityFactory)serviceProvider.GetRequiredService(factoryType);
 
-                return activityFactory.GetActivitiesObject(context);
+                return activityFactory.GetActivityObject(context);
             }
 
             return serviceProvider.GetService(serviceType);

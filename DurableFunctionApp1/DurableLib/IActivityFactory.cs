@@ -7,6 +7,13 @@ namespace DurableLib
     /// </summary>
     public interface IActivityFactory
     {
-        object GetActivitiesObject(TaskOrchestrationContext context);
+        object GetActivityObject(TaskOrchestrationContext context);
+    }
+
+    /// <summary>
+    /// From Lib
+    /// </summary>
+    public interface IActivityFactory<TActivity> : IActivityFactory
+    {
     }
 }
