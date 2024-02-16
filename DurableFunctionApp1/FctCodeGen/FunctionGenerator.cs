@@ -52,11 +52,13 @@ namespace FctCodeGen
             files = files.ToArray();
 
             workspace.RegisterFile(GetContentFile("./Patterns/Itf/IActivityPattern.cs"));
-            //workspace.RegisterFile(GetContentFile("./Patterns/Itf/IFactoryPattern.cs"));
+            workspace.RegisterFile(GetContentFile("./Patterns/Itf/IOrchestrationPattern.cs"));
             workspace.RegisterFile(GetContentFile("./Patterns/Impl/ActivityPatternFunction.cs"));
             workspace.RegisterFile(GetContentFile("./Patterns/Impl/ActivityPatternClient.cs"));
             workspace.RegisterFile(GetContentFile("./Patterns/Impl/ActivityPatternClientFactory.cs"));
-            //workspace.RegisterFile(GetContentFile("./Patterns/Impl/ObjectPattern.cs"));
+            workspace.RegisterFile(GetContentFile("./Patterns/Impl/OrchestrationPatternFunction.cs"));
+            workspace.RegisterFile(GetContentFile("./Patterns/Impl/OrchestrationPatternClient.cs"));
+            workspace.RegisterFile(GetContentFile("./Patterns/Impl/OrchestrationPatternClientFactory.cs"));
 
             var resolver = workspace.DeepLoad();
 
@@ -89,12 +91,39 @@ namespace FctCodeGen
 
             var generatedItems3 = generator3.Generate(files);
 
+            var generator4 = new AutomatedGenerator(
+                fileGenerator,
+                locator,
+                resolver,
+                typeof(OrchestrationPatternFunction),
+                this.logger);
 
+            var generatedItems4 = generator4.Generate(files);
+
+            var generator5 = new AutomatedGenerator(
+                fileGenerator,
+                locator,
+                resolver,
+                typeof(OrchestrationPatternClient),
+                this.logger);
+
+            generator5.AddIgnoreUsing("FctCodeGen.Utils");
+
+            var generatedItems5 = generator5.Generate(files);
+
+            var generator6 = new AutomatedGenerator(
+                fileGenerator,
+                locator,
+                resolver,
+                typeof(OrchestrationPatternClientFactory),
+                this.logger);
+
+            var generatedItems6 = generator6.Generate(files);
         }
 
         private static string GetContentFile(string contentFile)
         {
-            return Path.Combine(Path.GetDirectoryName(typeof(FunctionGenerator).Assembly.Location), contentFile);
+            return Path.Combine(Path.GetDirectoryName(typeof(FunctionGenerator).Assembly.Location)!, contentFile);
         }
     }
 }

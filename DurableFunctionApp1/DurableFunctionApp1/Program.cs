@@ -1,5 +1,4 @@
 using DurableLib;
-using DurableFunctionApp1.Generated;
 using DurableFunctionApp1.Business;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;

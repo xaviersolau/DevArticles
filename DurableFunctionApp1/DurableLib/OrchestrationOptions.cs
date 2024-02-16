@@ -38,7 +38,8 @@ namespace DurableLib
 
                     var arguments = ctorParameters.Select(p => orchestrationCtx.GetService(sp, p.ParameterType)).ToArray();
 
-                    return (TOrchestrationInterface)Activator.CreateInstance(typeof(TOrchestration), arguments) ?? throw new NotSupportedException();
+                var instance = Activator.CreateInstance(typeof(TOrchestration), arguments) ?? throw new NotSupportedException();
+                    return (TOrchestrationInterface)instance;
                 });
             }
 

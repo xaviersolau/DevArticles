@@ -1,6 +1,8 @@
-﻿namespace DurableFunctionApp1.Business
+﻿using DurableLib.Abstractions;
+
+namespace DurableFunctionApp1.Business
 {
-    public interface IMyOrchestration
+    public interface IMyOrchestration: IOrchestration
     {
         Task<List<string>> RunOrchestrator(string parameter);
     }

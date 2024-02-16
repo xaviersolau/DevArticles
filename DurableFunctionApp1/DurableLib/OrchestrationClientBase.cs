@@ -7,8 +7,15 @@ namespace DurableLib
     /// </summary>
     public class OrchestrationClientBase
     {
-        public DurableTaskClient Client { get; init; }
+        internal DurableTaskClient Client { get; init; } = default!;
 
-        public string? Id { get; protected set; }
+        internal string? Id { get; private set; }
+
+        protected async Task<TReturn> ScheduleNewOrchestrationInstanceAsync<TReturn, TPayload>(string name, TPayload input)
+        {
+            Id = await Client.ScheduleNewOrchestrationInstanceAsync(name, input);
+
+            return default!;
+        }
     }
 }
