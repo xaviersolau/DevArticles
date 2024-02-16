@@ -58,8 +58,6 @@ namespace FctCodeGen
             workspace.RegisterFile(GetContentFile("./Patterns/Impl/ActivityPatternClientFactory.cs"));
             //workspace.RegisterFile(GetContentFile("./Patterns/Impl/ObjectPattern.cs"));
 
-            var selectorResolver = new DefaultSelectorResolver();
-
             var resolver = workspace.DeepLoad();
 
             var generator1 = new AutomatedGenerator(
@@ -67,7 +65,6 @@ namespace FctCodeGen
                 locator,
                 resolver,
                 typeof(ActivityPatternFunction),
-                selectorResolver,
                 this.logger);
 
             var generatedItems1 = generator1.Generate(files);
@@ -77,7 +74,6 @@ namespace FctCodeGen
                 locator,
                 resolver,
                 typeof(ActivityPatternClient),
-                selectorResolver,
                 this.logger);
 
             generator2.AddIgnoreUsing("FctCodeGen.Utils");
@@ -89,7 +85,6 @@ namespace FctCodeGen
                 locator,
                 resolver,
                 typeof(ActivityPatternClientFactory),
-                selectorResolver,
                 this.logger);
 
             var generatedItems3 = generator3.Generate(files);

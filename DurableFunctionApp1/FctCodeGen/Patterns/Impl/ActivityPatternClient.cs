@@ -1,9 +1,9 @@
 ﻿using DurableLib;
 using DurableLib.Abstractions;
 using FctCodeGen.Patterns.Itf;
-using FctCodeGen.Utils;
 using SoloX.GeneratorTools.Core.CSharp.Generator;
 using SoloX.GeneratorTools.Core.CSharp.Generator.Attributes;
+using SoloX.GeneratorTools.Core.CSharp.Generator.ReplacePattern;
 using SoloX.GeneratorTools.Core.CSharp.Generator.Selectors;
 using System;
 using System.Collections.Generic;
@@ -18,7 +18,7 @@ namespace FctCodeGen.Patterns.Impl
     public class ActivityPatternClient : ActivityClientBase, IActivityPattern
     {
         [Repeat(Pattern = nameof(IActivityPattern.MethodPattern))]
-        [ReplacePattern(typeof(ReturnTypeReplaceHandler))]
+        [ReplacePattern(typeof(TaskValueTypeReplaceHandler))]
         public Task<ReturnType> MethodPattern([Repeat(Pattern = nameof(argument))] object argument)
         {
             var payload = new ActivityPatternFunction.MethodPatternPayload

@@ -26,11 +26,14 @@ namespace FctCodeGen.Patterns.Impl
 
         [Repeat(Pattern = nameof(IActivityPattern.MethodPattern))]
         [Function(nameof(IActivityPattern) + nameof(IActivityPattern.MethodPattern))]
+        [return: Repeat(Pattern = "argument")]
         public static Task<ReturnType> MethodPatternFunction([ActivityTrigger] MethodPatternPayload payload, FunctionContext executionContext)
         {
+            var argument = Repeat.Affectation("argument", payload.Argument);
+
             var activity = executionContext.InstanceServices.GetRequiredService<IActivityPattern>();
 
-            return activity.MethodPattern(Repeat.Argument("argument", payload.Argument));
+            return activity.MethodPattern(Repeat.Argument("argument", argument));
         }
     }
 }
