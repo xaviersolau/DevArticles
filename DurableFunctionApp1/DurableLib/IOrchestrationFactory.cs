@@ -1,12 +1,10 @@
-﻿using Microsoft.DurableTask.Client;
-
-namespace DurableLib
+﻿namespace DurableLib
 {
     /// <summary>
     /// From Lib
     /// </summary>
     public interface IOrchestrationFactory<TOrchestration>
     {
-        Task<string> NewOrchestrationAsync(DurableTaskClient client, Func<TOrchestration, Task> action);
+        Task<string> NewOrchestrationAsync(IOrchestrationClient client, Func<TOrchestration, Task> action);
     }
 }

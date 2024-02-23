@@ -44,6 +44,7 @@ namespace FctCodeGen
         private async Task RunAsync()
         {
             await this.functionGenerator.Generate(@"../../../../DurableFunctionApp1/DurableFunctionApp1.csproj");
+            await this.functionGenerator.Generate(@"../../../../DurableFunctionInProcApp/DurableFunctionInProcApp.csproj");
         }
     }
 }

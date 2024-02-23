@@ -1,12 +1,10 @@
-﻿using Microsoft.DurableTask;
-
-namespace DurableLib
+﻿namespace DurableLib
 {
     /// <summary>
     /// From Lib
     /// </summary>
     public abstract class ActivityClientBase
     {
-        public TaskOrchestrationContext Context { get; init; } = default!;
+        public IOrchestrationContext Context { get; init; } = default!;
     }
 }

@@ -1,6 +1,4 @@
-﻿using Microsoft.DurableTask;
-
-namespace DurableLib
+﻿namespace DurableLib
 {
     /// <summary>
     /// From Lib
@@ -8,7 +6,7 @@ namespace DurableLib
     public class ActivityFactory<TActivity, TClient> : IActivityFactory<TActivity>
         where TClient : ActivityClientBase, TActivity, new()
     {
-        public object GetActivityObject(TaskOrchestrationContext context)
+        public object GetActivityObject(IOrchestrationContext context)
         {
             var client = new TClient()
             {

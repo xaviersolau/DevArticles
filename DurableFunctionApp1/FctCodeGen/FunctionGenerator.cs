@@ -53,23 +53,43 @@ namespace FctCodeGen
 
             workspace.RegisterFile(GetContentFile("./Patterns/Itf/IActivityPattern.cs"));
             workspace.RegisterFile(GetContentFile("./Patterns/Itf/IOrchestrationPattern.cs"));
-            workspace.RegisterFile(GetContentFile("./Patterns/Impl/ActivityPatternFunction.cs"));
+            workspace.RegisterFile(GetContentFile("./Patterns/Impl/ActivityPatternIsolatedFunction.cs"));
+            workspace.RegisterFile(GetContentFile("./Patterns/Impl/ActivityPatternInProcessFunction.cs"));
+            workspace.RegisterFile(GetContentFile("./Patterns/Impl/ActivityPatternPayload.cs"));
             workspace.RegisterFile(GetContentFile("./Patterns/Impl/ActivityPatternClient.cs"));
             workspace.RegisterFile(GetContentFile("./Patterns/Impl/ActivityPatternClientFactory.cs"));
-            workspace.RegisterFile(GetContentFile("./Patterns/Impl/OrchestrationPatternFunction.cs"));
+            workspace.RegisterFile(GetContentFile("./Patterns/Impl/OrchestrationPatternIsolatedFunction.cs"));
+            workspace.RegisterFile(GetContentFile("./Patterns/Impl/OrchestrationPatternInProcessFunction.cs"));
+            workspace.RegisterFile(GetContentFile("./Patterns/Impl/OrchestrationPatternPayload.cs"));
             workspace.RegisterFile(GetContentFile("./Patterns/Impl/OrchestrationPatternClient.cs"));
             workspace.RegisterFile(GetContentFile("./Patterns/Impl/OrchestrationPatternClientFactory.cs"));
 
             var resolver = workspace.DeepLoad();
 
-            var generator1 = new AutomatedGenerator(
-                fileGenerator,
-                locator,
-                resolver,
-                typeof(ActivityPatternFunction),
-                this.logger);
+            var isolatedContext = resolver.Find("Microsoft.DurableTask.TaskOrchestrationContext");
 
-            var generatedItems1 = generator1.Generate(files);
+            if (isolatedContext != null && isolatedContext.Any())
+            {
+                var generator1 = new AutomatedGenerator(
+                    fileGenerator,
+                    locator,
+                    resolver,
+                    typeof(ActivityPatternIsolatedFunction),
+                    this.logger);
+
+                var generatedItems1 = generator1.Generate(files);
+            }
+            else
+            {
+                var generator1 = new AutomatedGenerator(
+                    fileGenerator,
+                    locator,
+                    resolver,
+                    typeof(ActivityPatternInProcessFunction),
+                    this.logger);
+
+                var generatedItems1 = generator1.Generate(files);
+            }
 
             var generator2 = new AutomatedGenerator(
                 fileGenerator,
@@ -91,14 +111,28 @@ namespace FctCodeGen
 
             var generatedItems3 = generator3.Generate(files);
 
-            var generator4 = new AutomatedGenerator(
-                fileGenerator,
-                locator,
-                resolver,
-                typeof(OrchestrationPatternFunction),
-                this.logger);
+            if (isolatedContext != null && isolatedContext.Any())
+            {
+                var generator4 = new AutomatedGenerator(
+                    fileGenerator,
+                    locator,
+                    resolver,
+                    typeof(OrchestrationPatternIsolatedFunction),
+                    this.logger);
 
-            var generatedItems4 = generator4.Generate(files);
+                var generatedItems4 = generator4.Generate(files);
+            }
+            else
+            {
+                var generator4 = new AutomatedGenerator(
+                    fileGenerator,
+                    locator,
+                    resolver,
+                    typeof(OrchestrationPatternInProcessFunction),
+                    this.logger);
+
+                var generatedItems4 = generator4.Generate(files);
+            }
 
             var generator5 = new AutomatedGenerator(
                 fileGenerator,
@@ -119,6 +153,24 @@ namespace FctCodeGen
                 this.logger);
 
             var generatedItems6 = generator6.Generate(files);
+
+            var generator7 = new AutomatedGenerator(
+                fileGenerator,
+                locator,
+                resolver,
+                typeof(ActivityPatternPayload),
+                this.logger);
+
+            var generatedItems7 = generator7.Generate(files);
+
+            var generator8 = new AutomatedGenerator(
+                fileGenerator,
+                locator,
+                resolver,
+                typeof(OrchestrationPatternPayload),
+                this.logger);
+
+            var generatedItems8 = generator8.Generate(files);
         }
 
         private static string GetContentFile(string contentFile)

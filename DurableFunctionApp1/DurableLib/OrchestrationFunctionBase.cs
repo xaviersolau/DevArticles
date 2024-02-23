@@ -1,5 +1,4 @@
-﻿using Microsoft.DurableTask;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +16,7 @@ namespace DurableLib
             this.serviceProvider = serviceProvider;
         }
 
-        protected Task<TReturn> InternalRunOrchestrationAsync<TOrchestration, TReturn>(TaskOrchestrationContext context, Func<TOrchestration, Task<TReturn>> runHandler)
+        protected Task<TReturn> InternalRunOrchestrationAsync<TOrchestration, TReturn>(IOrchestrationContext context, Func<TOrchestration, Task<TReturn>> runHandler)
             where TOrchestration : notnull
         {
             var orchestrationCtx = this.serviceProvider.GetRequiredService<OrchestrationCtx>();

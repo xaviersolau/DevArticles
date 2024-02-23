@@ -21,12 +21,12 @@ namespace FctCodeGen.Patterns.Impl
         [ReplacePattern(typeof(TaskValueTypeReplaceHandler))]
         public Task<ReturnType> MethodPattern([Repeat(Pattern = nameof(argument))] object argument)
         {
-            var payload = new ActivityPatternFunction.MethodPatternPayload
+            var payload = new ActivityPatternPayload.MethodPatternPayload
             {
                 Argument = Repeat.Affectation("argument", argument),
             };
 
-            return Context.CallActivityAsync<ReturnType>(nameof(IActivityPattern) + nameof(IActivityPattern.MethodPattern), payload);
+            return Context.CallActivityAsync<ReturnType, ActivityPatternPayload.MethodPatternPayload>(nameof(IActivityPattern) + nameof(IActivityPattern.MethodPattern), payload);
         }
     }
 }

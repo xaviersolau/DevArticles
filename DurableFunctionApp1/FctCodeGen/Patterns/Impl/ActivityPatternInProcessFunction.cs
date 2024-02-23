@@ -1,6 +1,7 @@
 ﻿using DurableLib.Abstractions;
 using FctCodeGen.Patterns.Itf;
-using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.DependencyInjection;
 using SoloX.GeneratorTools.Core.CSharp.Generator;
 using SoloX.GeneratorTools.Core.CSharp.Generator.Attributes;
@@ -15,25 +16,23 @@ namespace FctCodeGen.Patterns.Impl
 {
     [Pattern<InterfaceBasedOnSelector<IActivity>>]
     [Repeat(Pattern = nameof(IActivityPattern), Prefix = "I")]
-    public class ActivityPatternFunction
+    public class ActivityPatternInProcessFunction
     {
-        [Repeat(Pattern = nameof(IActivityPattern.MethodPattern))]
-        public class MethodPatternPayload
+        private IActivityPattern activityPattern;
+
+        public ActivityPatternInProcessFunction(IActivityPattern activityPattern)
         {
-            [Repeat(Pattern = "argument")]
-            public object Argument { get; set; }
+            this.activityPattern = activityPattern;
         }
 
         [Repeat(Pattern = nameof(IActivityPattern.MethodPattern))]
-        [Function(nameof(IActivityPattern) + nameof(IActivityPattern.MethodPattern))]
+        [FunctionName(nameof(IActivityPattern) + nameof(IActivityPattern.MethodPattern))]
         [return: Repeat(Pattern = "argument")]
-        public static Task<ReturnType> MethodPatternFunction([ActivityTrigger] MethodPatternPayload payload, FunctionContext executionContext)
+        public Task<ReturnType> MethodPatternFunction([ActivityTrigger] ActivityPatternPayload.MethodPatternPayload payload)
         {
             var argument = Repeat.Affectation("argument", payload.Argument);
 
-            var activity = executionContext.InstanceServices.GetRequiredService<IActivityPattern>();
-
-            return activity.MethodPattern(Repeat.Argument("argument", argument));
+            return this.activityPattern.MethodPattern(Repeat.Argument("argument", argument));
         }
     }
 }

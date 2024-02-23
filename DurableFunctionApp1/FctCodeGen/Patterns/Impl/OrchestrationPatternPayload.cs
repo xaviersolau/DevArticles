@@ -15,18 +15,13 @@ namespace FctCodeGen.Patterns.Impl
 {
     [Pattern<InterfaceBasedOnSelector<IOrchestration>>]
     [Repeat(Pattern = nameof(IOrchestrationPattern), Prefix = "I")]
-    public class OrchestrationPatternClient : OrchestrationClientBase, IOrchestrationPattern
+    public static class OrchestrationPatternPayload
     {
         [Repeat(Pattern = nameof(IOrchestrationPattern.MethodPattern))]
-        [ReplacePattern(typeof(TaskValueTypeReplaceHandler))]
-        public Task<ReturnType> MethodPattern([Repeat(Pattern = nameof(argument))] object argument)
+        public class MethodPatternPayload
         {
-            var payload = new OrchestrationPatternPayload.MethodPatternPayload
-            {
-                Argument = Repeat.Affectation("argument", argument),
-            };
-
-            return ScheduleNewOrchestrationInstanceAsync<ReturnType, OrchestrationPatternPayload.MethodPatternPayload>(nameof(IOrchestrationPattern) + nameof(IOrchestrationPattern.MethodPattern), payload);
+            [Repeat(Pattern = "argument")]
+            public object Argument { get; set; }
         }
     }
 }

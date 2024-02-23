@@ -1,6 +1,4 @@
-﻿using Microsoft.DurableTask.Client;
-
-namespace DurableLib
+﻿namespace DurableLib
 {
     /// <summary>
     /// From Lib
@@ -8,7 +6,7 @@ namespace DurableLib
     public class OrchestrationFactory<TOrchestration, TClient> : IOrchestrationFactory<TOrchestration>
         where TClient : OrchestrationClientBase, TOrchestration, new()
     {
-        public async Task<string> NewOrchestrationAsync(DurableTaskClient client, Func<TOrchestration, Task> action)
+        public async Task<string> NewOrchestrationAsync(IOrchestrationClient client, Func<TOrchestration, Task> action)
         {
             var myOrchestration = new TClient()
             {

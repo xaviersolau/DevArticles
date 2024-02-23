@@ -1,17 +1,19 @@
 ﻿using DurableFunctionApp1.Business;
 using DurableLib;
-using DurableLib.Isolated;
-using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.DurableTask.Client;
+using DurableLib.InProc;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 
-namespace DurableFunctionApp1.Functions
+namespace DurableFunctionInProcApp.Functions
 {
     public class MyOrchestrationHttpTriggerFunction
     {
@@ -22,13 +24,13 @@ namespace DurableFunctionApp1.Functions
             this.myOrchestrationFactory = myOrchestrationFactory;
         }
 
-        [Function("DurableFunction_HttpStart")]
-        public async Task<HttpResponseData> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req,
-            [DurableClient] DurableTaskClient client,
-            FunctionContext executionContext, string parameter)
+        [FunctionName("DurableFunction_HttpStart")]
+        public async Task<IActionResult> HttpStart(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req,
+            [DurableClient] IDurableOrchestrationClient client,
+            ILogger logger)
         {
-            ILogger logger = executionContext.GetLogger("DurableFunction_HttpStart");
+            var parameter = req.Query["parameter"];
 
             var instanceId = await myOrchestrationFactory
                 .NewOrchestrationAsync(client, o => o.RunOrchestrator(parameter));

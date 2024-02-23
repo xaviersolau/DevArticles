@@ -1,5 +1,4 @@
-﻿using Microsoft.DurableTask;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace DurableLib
@@ -9,7 +8,7 @@ namespace DurableLib
     /// </summary>
     public class OrchestrationCtx
     {
-        private TaskOrchestrationContext? context;
+        private IOrchestrationContext? context;
         private Dictionary<Type, Type> activityFactoryMap;
 
         public OrchestrationCtx(Dictionary<Type, Type> activityFactoryMap)
@@ -17,7 +16,7 @@ namespace DurableLib
             this.activityFactoryMap = activityFactoryMap;
         }
 
-        public void SetContext(TaskOrchestrationContext? context)
+        public void SetContext(IOrchestrationContext? context)
         {
             this.context = context;
         }
@@ -31,7 +30,7 @@ namespace DurableLib
 
             if (serviceType == typeof(ILogger))
             {
-                return context.CreateReplaySafeLogger(context.Name);
+                return context.CreateReplaySafeLogger();
             }
             else if (serviceType.IsGenericType && serviceType.GetGenericTypeDefinition() == typeof(ILogger<>))
             {

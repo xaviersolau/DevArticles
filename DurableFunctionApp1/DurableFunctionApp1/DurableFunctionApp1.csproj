@@ -16,6 +16,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DurableFunctionApp1.Business\DurableFunctionApp1.Business.csproj" />
+    <ProjectReference Include="..\DurableLib.Isolated\DurableLib.Isolated.csproj" />
     <ProjectReference Include="..\DurableLib\DurableLib.csproj" />
   </ItemGroup>
   <ItemGroup>
