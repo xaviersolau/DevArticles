@@ -13,11 +13,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FctCodeGen", "FctCodeGen\Fc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DurableLib.Abstractions", "DurableLib.Abstractions\DurableLib.Abstractions.csproj", "{2FCE7B88-234B-4C0F-9F79-7FB0658E2FA3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DurableFunctionInProcApp", "DurableFunctionInProcApp\DurableFunctionInProcApp.csproj", "{027581C4-1856-401B-A614-F6AAC8AF94FD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DurableFunctionInProcApp", "DurableFunctionInProcApp\DurableFunctionInProcApp.csproj", "{027581C4-1856-401B-A614-F6AAC8AF94FD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DurableLib.InProc", "DurableLib.InProc\DurableLib.InProc.csproj", "{67F87322-EB7D-4AF5-A3F3-9B1208CD0832}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DurableLib.InProc", "DurableLib.InProc\DurableLib.InProc.csproj", "{67F87322-EB7D-4AF5-A3F3-9B1208CD0832}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DurableLib.Isolated", "DurableLib.Isolated\DurableLib.Isolated.csproj", "{510A09E2-310A-47FB-86D0-A0A5401A4539}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DurableLib.Isolated", "DurableLib.Isolated\DurableLib.Isolated.csproj", "{510A09E2-310A-47FB-86D0-A0A5401A4539}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

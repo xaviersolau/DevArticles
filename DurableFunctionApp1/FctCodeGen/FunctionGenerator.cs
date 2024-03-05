@@ -9,6 +9,7 @@ using FctCodeGen.Patterns.Impl;
 using SoloX.GeneratorTools.Core.CSharp.Generator.ReplacePattern;
 using SoloX.GeneratorTools.Core.CSharp.Model;
 using Microsoft.CodeAnalysis;
+using DurableLib.Isolated;
 
 namespace FctCodeGen
 {
@@ -66,7 +67,7 @@ namespace FctCodeGen
 
             var resolver = workspace.DeepLoad();
 
-            var isolatedContext = resolver.Find("Microsoft.DurableTask.TaskOrchestrationContext");
+            var isolatedContext = resolver.Find(typeof(OrchestrationContextIsolated).FullName);
 
             if (isolatedContext != null && isolatedContext.Any())
             {
@@ -97,8 +98,6 @@ namespace FctCodeGen
                 resolver,
                 typeof(ActivityPatternClient),
                 this.logger);
-
-            generator2.AddIgnoreUsing("FctCodeGen.Utils");
 
             var generatedItems2 = generator2.Generate(files);
 
@@ -140,8 +139,6 @@ namespace FctCodeGen
                 resolver,
                 typeof(OrchestrationPatternClient),
                 this.logger);
-
-            generator5.AddIgnoreUsing("FctCodeGen.Utils");
 
             var generatedItems5 = generator5.Generate(files);
 

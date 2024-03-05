@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DurableFunctionsMonitor.DotNetBackend;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 
@@ -23,9 +24,16 @@ namespace DurableFunctionInProcApp
             ArgumentNullException.ThrowIfNull(builder);
 
             builder.Services.AddOrchestration(
-            options => options
-                .UseOrchestration<IMyOrchestration, MyOrchestration>()
-                .UseActivity<IMyActivities, MyActivities>());
+                options => options
+                    .UseOrchestration<IMyOrchestration, MyOrchestration>()
+                    .UseActivity<IMyActivities, MyActivities>());
+
+
+            DfmEndpoint.Setup(new DfmSettings
+            {
+                DisableAuthentication = true,
+            });
+
         }
 
         /// <summary>
