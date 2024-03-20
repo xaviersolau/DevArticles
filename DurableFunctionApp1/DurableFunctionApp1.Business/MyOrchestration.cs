@@ -23,6 +23,20 @@ namespace DurableFunctionApp1.Business
 
             outputs.Add(await myActivities.SayHello(parameter, "comment 1"));
 
+            var tasks = new List<Task<string>>();
+
+            for (int i = 0; i < 10; i++)
+            {
+                tasks.Add(myActivities.SayHello(parameter, $"comment parallel {i}"));
+            }
+
+            await Task.WhenAll(tasks);
+
+            foreach (var task in tasks)
+            {
+                outputs.Add(await task);
+            }
+
             logger.LogInformation($"Saying hello to Tokyo from RunOrchestrator.");
 
             outputs.Add(await myActivities.SayHello("Tokyo", "comment 2"));
