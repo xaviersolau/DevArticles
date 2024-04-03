@@ -1,0 +1,15 @@
+﻿@page "/"
+
+@* Inject the server global localizer *@
+
+@inject IServerGlobalStringLocalizer Localizer
+
+@*
+    Then we can use the localizer properties to get the localized messages.
+*@
+
+<PageTitle>@Localizer.HomePageTitle</PageTitle>
+
+<h1>@Localizer.HelloTitle</h1>
+
+@Localizer.HelloBody
