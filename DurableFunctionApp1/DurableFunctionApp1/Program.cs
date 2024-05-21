@@ -19,9 +19,13 @@ var host = new HostBuilder()
         services.ConfigureFunctionsApplicationInsights();
 
         services.AddOrchestration(
-            options => options
-                .UseOrchestration<IMyOrchestration, MyOrchestration>()
-                .UseActivity<IMyActivities, MyActivities>());
+            options => {
+                options.LookupAssemblies = [typeof(Program).Assembly];
+
+                options
+                    .UseOrchestration<IMyOrchestration, MyOrchestration>()
+                    .UseActivity<IMyActivities, MyActivities>();
+                });
     })
     .Build();
 

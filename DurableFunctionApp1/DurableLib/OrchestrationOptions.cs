@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace DurableLib
 {
@@ -36,7 +37,7 @@ namespace DurableLib
                 {
                     var orchestrationCtx = sp.GetRequiredService<OrchestrationCtx>();
 
-                    var arguments = ctorParameters.Select(p => orchestrationCtx.GetService(sp, p.ParameterType)).ToArray();
+                    var arguments = ctorParameters.Select(p => orchestrationCtx.GetOrchestrationService(sp, p.ParameterType)).ToArray();
 
                     var instance = Activator.CreateInstance(typeof(TOrchestration), arguments) ?? throw new NotSupportedException();
                     return (TOrchestrationInterface)instance;
@@ -60,5 +61,12 @@ namespace DurableLib
 
             return this;
         }
+
+        //public OrchestrationOptions UseFactory<TFactoryInterface, TFactory>() where TFactory : TFactoryInterface
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        public IEnumerable<Assembly>? LookupAssemblies { get; set; }
     }
 }

@@ -24,9 +24,14 @@ namespace DurableFunctionInProcApp
             ArgumentNullException.ThrowIfNull(builder);
 
             builder.Services.AddOrchestration(
-                options => options
-                    .UseOrchestration<IMyOrchestration, MyOrchestration>()
-                    .UseActivity<IMyActivities, MyActivities>());
+                options =>
+                {
+                    options.LookupAssemblies = new[] { typeof(Startup).Assembly };
+
+                    options
+                        .UseOrchestration<IMyOrchestration, MyOrchestration>()
+                        .UseActivity<IMyActivities, MyActivities>();
+                });
 
 
             DfmEndpoint.Setup(new DfmSettings

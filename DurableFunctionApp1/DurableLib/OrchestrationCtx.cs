@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using DurableLib.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace DurableLib
@@ -21,7 +22,7 @@ namespace DurableLib
             this.context = context;
         }
 
-        public object? GetService(IServiceProvider serviceProvider, Type serviceType)
+        public object? GetOrchestrationService(IServiceProvider serviceProvider, Type serviceType)
         {
             if (context == null)
             {
@@ -38,6 +39,18 @@ namespace DurableLib
                 var logger = context.CreateReplaySafeLogger(argType);
 
                 return Activator.CreateInstance(typeof(OrchestrationLogger<>).MakeGenericType(argType), logger);
+            }
+            else if (serviceType == typeof(IOrchestrationTools))
+            {
+                return context.GetOrchestrationTools();
+            }
+            else if (serviceType.IsGenericType && serviceType.GetGenericTypeDefinition() == typeof(IEventHub<>))
+            {
+                var eventHub = (EventHub)serviceProvider.GetService(serviceType);
+
+                eventHub.OrchestrationTools = context.GetOrchestrationTools();
+
+                return eventHub;
             }
             else if (activityFactoryMap.TryGetValue(serviceType, out var factoryType))
             {

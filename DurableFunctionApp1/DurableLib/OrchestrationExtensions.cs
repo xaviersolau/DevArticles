@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using DurableLib.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DurableLib
 {
@@ -16,7 +17,9 @@ namespace DurableLib
 
             services.AddScoped(sp => new OrchestrationCtx(activityFactoryMap));
 
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            services.AddTransient(typeof(IEventHub<>), typeof(EventHub<>));
+
+            var assemblies = options.LookupAssemblies ?? AppDomain.CurrentDomain.GetAssemblies();
 
             foreach (var assembly in assemblies)
             {

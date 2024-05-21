@@ -1,11 +1,12 @@
 ﻿
+using DurableLib.Abstractions;
 using Microsoft.DurableTask;
 using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
 
 namespace DurableLib.Isolated
 {
-    public class OrchestrationContextIsolated : IOrchestrationContext
+    public class OrchestrationContextIsolated : IOrchestrationContext, IOrchestrationTools
     {
         private TaskOrchestrationContext context;
 
@@ -27,6 +28,16 @@ namespace DurableLib.Isolated
         public ILogger CreateReplaySafeLogger(Type type)
         {
             return this.context.CreateReplaySafeLogger(type);
+        }
+
+        public IOrchestrationTools GetOrchestrationTools()
+        {
+            return this;
+        }
+
+        public Task<T> WaitForExternalEvent<T>(string eventName, CancellationToken cancellationToken = default)
+        {
+            return this.context.WaitForExternalEvent<T>(eventName, cancellationToken);
         }
     }
 }

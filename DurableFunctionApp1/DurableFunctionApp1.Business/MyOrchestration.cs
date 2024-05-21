@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using DurableLib.Abstractions;
+using Microsoft.Extensions.Logging;
 
 namespace DurableFunctionApp1.Business
 {
@@ -6,10 +7,12 @@ namespace DurableFunctionApp1.Business
     {
         private readonly ILogger<MyOrchestration> logger;
         private readonly IMyActivities myActivities;
+        private readonly IEventHub<HelloEvent> helloEventHub;
 
-        public MyOrchestration(ILogger<MyOrchestration> logger, IMyActivities myActivities)
+        public MyOrchestration(ILogger<MyOrchestration> logger, IMyActivities myActivities, IEventHub<HelloEvent> helloEventHub)
         {
             this.myActivities = myActivities;
+            this.helloEventHub = helloEventHub;
             this.logger = logger;
         }
 
@@ -37,6 +40,13 @@ namespace DurableFunctionApp1.Business
                 outputs.Add(await task);
             }
 
+            logger.LogInformation($"WAITING EVENT HELLO.");
+
+            var helloEvent = await this.helloEventHub.WaitForEvent();
+
+            logger.LogInformation($"Received EVENT HELLO with data {helloEvent.Hello}.");
+
+
             logger.LogInformation($"Saying hello to Tokyo from RunOrchestrator.");
 
             outputs.Add(await myActivities.SayHello("Tokyo", "comment 2"));
@@ -51,5 +61,10 @@ namespace DurableFunctionApp1.Business
 
             return outputs;
         }
+    }
+
+    public class HelloEvent : IEvent
+    {
+        public string Hello { get; set; }
     }
 }
