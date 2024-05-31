@@ -35,9 +35,29 @@ namespace DurableLib.InProc
             return this;
         }
 
-        public Task<T> WaitForExternalEvent<T>(string eventName, CancellationToken cancellationToken = default)
+        public Task<T> WaitForExternalEvent<T>(string eventName, CancellationToken cancellationToken = default) where T : IEvent
         {
-            return this.context.WaitForExternalEvent<T>(eventName);
+            return this.context.WaitForExternalEvent<T>(eventName, TimeSpan.FromMinutes(5), cancellationToken);
         }
+
+        public Task SendEvent<T>(string id, string eventName, T eventToSend) where T : IEvent
+        {
+            var payload = new SendEventPayload<T>()
+            {
+                InstanceId = id,
+                EventName = eventToSend.GetType().Name,
+                Event = eventToSend
+            };
+
+            return this.context.CallActivityAsync("SendEventInternal" + typeof(T).Name, payload);
+        }
+    }
+    public class SendEventPayload<T> where T : IEvent
+    {
+        public string InstanceId { get; set; }
+
+        public string EventName { get; set; }
+
+        public T Event { get; set; }
     }
 }

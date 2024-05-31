@@ -2,7 +2,9 @@
 {
     public interface IOrchestrationTools
     {
-        Task<T> WaitForExternalEvent<T>(string eventName, CancellationToken cancellationToken = default(CancellationToken));
+        Task SendEvent<T>(string id, string eventName, T eventToSend) where T : IEvent;
+
+        Task<T> WaitForExternalEvent<T>(string eventName, CancellationToken cancellationToken = default(CancellationToken)) where T : IEvent;
     }
 
     public interface IEvent

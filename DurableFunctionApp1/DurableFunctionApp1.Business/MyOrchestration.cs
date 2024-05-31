@@ -44,8 +44,13 @@ namespace DurableFunctionApp1.Business
 
             var helloEvent = await this.helloEventHub.WaitForEvent();
 
-            logger.LogInformation($"Received EVENT HELLO with data {helloEvent.Hello}.");
+            logger.LogInformation($"Received EVENT HELLO with message {helloEvent.Hello} and instance id {helloEvent.InstanceId}.");
 
+            if (helloEvent.InstanceId != null)
+            {
+                logger.LogInformation($"SENDING EVENT HELLO.");
+                await this.helloEventHub.SendEvent(helloEvent.InstanceId, new HelloEvent() { Hello = helloEvent.Hello });
+            }
 
             logger.LogInformation($"Saying hello to Tokyo from RunOrchestrator.");
 
@@ -61,10 +66,5 @@ namespace DurableFunctionApp1.Business
 
             return outputs;
         }
-    }
-
-    public class HelloEvent : IEvent
-    {
-        public string Hello { get; set; }
     }
 }

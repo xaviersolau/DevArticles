@@ -3,6 +3,7 @@ using DurableLib.Abstractions;
 using Microsoft.DurableTask;
 using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
+using System.Threading;
 
 namespace DurableLib.Isolated
 {
@@ -35,9 +36,16 @@ namespace DurableLib.Isolated
             return this;
         }
 
-        public Task<T> WaitForExternalEvent<T>(string eventName, CancellationToken cancellationToken = default)
+        public Task<T> WaitForExternalEvent<T>(string eventName, CancellationToken cancellationToken = default) where T : IEvent
         {
             return this.context.WaitForExternalEvent<T>(eventName, cancellationToken);
+        }
+
+        public Task SendEvent<T>(string id, string eventName, T eventToSend) where T : IEvent
+        {
+            this.context.SendEvent(id, eventName, eventToSend);
+
+            return Task.CompletedTask;
         }
     }
 }

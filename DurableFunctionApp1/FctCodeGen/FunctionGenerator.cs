@@ -4,10 +4,7 @@ using SoloX.GeneratorTools.Core.Generator.Impl;
 using SoloX.GeneratorTools.Core.Generator;
 using SoloX.GeneratorTools.Core.Utils;
 using SoloX.GeneratorTools.Core.CSharp.Generator.Impl;
-using SoloX.GeneratorTools.Core.CSharp.Generator.Selectors;
 using FctCodeGen.Patterns.Impl;
-using SoloX.GeneratorTools.Core.CSharp.Generator.ReplacePattern;
-using SoloX.GeneratorTools.Core.CSharp.Model;
 using Microsoft.CodeAnalysis;
 using DurableLib.Isolated;
 
@@ -54,6 +51,7 @@ namespace FctCodeGen
 
             workspace.RegisterFile(GetContentFile("./Patterns/Itf/IActivityPattern.cs"));
             workspace.RegisterFile(GetContentFile("./Patterns/Itf/IOrchestrationPattern.cs"));
+            workspace.RegisterFile(GetContentFile("./Patterns/Cls/EventPattern.cs"));
             workspace.RegisterFile(GetContentFile("./Patterns/Impl/ActivityPatternIsolatedFunction.cs"));
             workspace.RegisterFile(GetContentFile("./Patterns/Impl/ActivityPatternInProcessFunction.cs"));
             workspace.RegisterFile(GetContentFile("./Patterns/Impl/ActivityPatternPayload.cs"));
@@ -64,10 +62,23 @@ namespace FctCodeGen
             workspace.RegisterFile(GetContentFile("./Patterns/Impl/OrchestrationPatternPayload.cs"));
             workspace.RegisterFile(GetContentFile("./Patterns/Impl/OrchestrationPatternClient.cs"));
             workspace.RegisterFile(GetContentFile("./Patterns/Impl/OrchestrationPatternClientFactory.cs"));
+            workspace.RegisterFile(GetContentFile("./Patterns/Impl/EventPatternInProcessActivityFunction.cs"));
 
             var resolver = workspace.DeepLoad();
 
             var isolatedContext = resolver.Find(typeof(OrchestrationContextIsolated).FullName);
+
+            if (isolatedContext == null || isolatedContext.Count() == 0)
+            {
+                var generator0 = new AutomatedGenerator(
+                    fileGenerator,
+                    locator,
+                    resolver,
+                    typeof(EventPatternInProcessActivityFunction),
+                    this.logger);
+
+                var generatedItems0 = generator0.Generate(files);
+            }
 
             if (isolatedContext != null && isolatedContext.Any())
             {
