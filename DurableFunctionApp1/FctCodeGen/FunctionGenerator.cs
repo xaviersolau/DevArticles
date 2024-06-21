@@ -24,6 +24,7 @@ namespace FctCodeGen
         public Task Generate(string projectFile)
         {
             var projectFolder = Path.GetDirectoryName(projectFile);
+            var projectObjFolder = Path.Combine(projectFolder, "obj");
 
             this.logger.LogInformation($"Loading {Path.GetFileName(projectFile)}...");
 
@@ -31,7 +32,7 @@ namespace FctCodeGen
 
             var project = workspace.RegisterProject(projectFile);
 
-            var locator = new RelativeLocator(projectFolder, project.RootNameSpace, suffix: "Impl");
+            var locator = new RelativeLocator(projectObjFolder, "none", suffix: "Impl");
             var fileGenerator = new FileWriter(".generated.cs");
 
             // Generate with a filter on current project interface declarations.
@@ -40,6 +41,10 @@ namespace FctCodeGen
                 locator,
                 fileGenerator,
                 workspace.Files);
+
+            var targetFile = GetContentFile("./Recources/Orchestration.targets");
+            var target = File.ReadAllText(targetFile);
+            File.WriteAllText(Path.Combine(projectObjFolder, Path.GetFileName(projectFile) + ".Orchestration.targets"), target);
 
             return Task.CompletedTask;
         }

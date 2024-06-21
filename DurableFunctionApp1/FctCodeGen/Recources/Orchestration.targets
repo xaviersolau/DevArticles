@@ -1,0 +1,11 @@
+﻿<Project>
+
+  <Target Name="OrchestrationGenerated" BeforeTargets="BeforeBuild;BeforeRebuild">
+
+    <ItemGroup>
+      <Compile Include="$(BaseIntermediateOutputPath)/Impl/**/*.generated.cs" />
+    </ItemGroup>
+
+  </Target>
+
+</Project>

@@ -8,6 +8,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Recources\Orchestration.targets" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Recources\Orchestration.targets">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
     <PackageReference Include="SoloX.GeneratorTools.Core.CSharp.Extensions" Version="1.0.0-alpha.41" />
