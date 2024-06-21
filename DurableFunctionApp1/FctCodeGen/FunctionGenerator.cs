@@ -63,6 +63,8 @@ namespace FctCodeGen
             workspace.RegisterFile(GetContentFile("./Patterns/Impl/OrchestrationPatternClient.cs"));
             workspace.RegisterFile(GetContentFile("./Patterns/Impl/OrchestrationPatternClientFactory.cs"));
             workspace.RegisterFile(GetContentFile("./Patterns/Impl/EventPatternInProcessActivityFunction.cs"));
+            workspace.RegisterFile(GetContentFile("./Patterns/Impl/OrchestrationPatternSubClient.cs"));
+            workspace.RegisterFile(GetContentFile("./Patterns/Impl/OrchestrationPatternSubClientFactory.cs"));
 
             var resolver = workspace.DeepLoad();
 
@@ -161,6 +163,24 @@ namespace FctCodeGen
                 this.logger);
 
             var generatedItems6 = generator6.Generate(files);
+
+            var generator51 = new AutomatedGenerator(
+                fileGenerator,
+                locator,
+                resolver,
+                typeof(OrchestrationPatternSubClient),
+                this.logger);
+
+            var generatedItems51 = generator51.Generate(files);
+
+            var generator61 = new AutomatedGenerator(
+                fileGenerator,
+                locator,
+                resolver,
+                typeof(OrchestrationPatternSubClientFactory),
+                this.logger);
+
+            var generatedItems61 = generator61.Generate(files);
 
             var generator7 = new AutomatedGenerator(
                 fileGenerator,

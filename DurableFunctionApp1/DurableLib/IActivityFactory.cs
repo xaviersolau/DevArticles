@@ -14,4 +14,12 @@
     public interface IActivityFactory<TActivity> : IActivityFactory
     {
     }
+
+    public interface ISubOrchestrationFactory
+    {
+        object GetSubOrchestrationObject(IOrchestrationContext context);
+    }
+    public interface ISubOrchestrationFactory<TOrchestration> : ISubOrchestrationFactory
+    {
+    }
 }

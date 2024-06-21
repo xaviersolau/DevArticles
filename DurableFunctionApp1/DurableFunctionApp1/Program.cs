@@ -24,7 +24,9 @@ var host = new HostBuilder()
 
                 options
                     .UseOrchestration<IMyOrchestration, MyOrchestration>()
-                    .UseActivity<IMyActivities, MyActivities>();
+                    .UseOrchestration<IAnotherOrchestration, AnotherOrchestration>()
+                    .UseActivity<IMyActivities, MyActivities>()
+                    .UseActivity<IAnotherActivity, AnotherActivity>();
                 });
     })
     .Build();

@@ -47,5 +47,10 @@ namespace DurableLib.Isolated
 
             return Task.CompletedTask;
         }
+
+        public Task<TResult> CallSubOrchestrationAsync<TResult, TPayload>(string name, TPayload payload)
+        {
+            return this.context.CallSubOrchestratorAsync<TResult>(name, payload);
+        }
     }
 }

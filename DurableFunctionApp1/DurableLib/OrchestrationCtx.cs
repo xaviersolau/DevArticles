@@ -11,10 +11,12 @@ namespace DurableLib
     {
         private IOrchestrationContext? context;
         private Dictionary<Type, Type> activityFactoryMap;
+        private Dictionary<Type, Type> subOrchestrationFactoryMap;
 
-        public OrchestrationCtx(Dictionary<Type, Type> activityFactoryMap)
+        public OrchestrationCtx(Dictionary<Type, Type> activityFactoryMap, Dictionary<Type, Type> subOrchestrationFactoryMap)
         {
             this.activityFactoryMap = activityFactoryMap;
+            this.subOrchestrationFactoryMap = subOrchestrationFactoryMap;
         }
 
         public void SetContext(IOrchestrationContext? context)
@@ -52,11 +54,17 @@ namespace DurableLib
 
                 return eventHub;
             }
-            else if (activityFactoryMap.TryGetValue(serviceType, out var factoryType))
+            else if (activityFactoryMap.TryGetValue(serviceType, out var activityFactoryType))
             {
-                var activityFactory = (IActivityFactory)serviceProvider.GetRequiredService(factoryType);
+                var activityFactory = (IActivityFactory)serviceProvider.GetRequiredService(activityFactoryType);
 
                 return activityFactory.GetActivityObject(context);
+            }
+            else if (subOrchestrationFactoryMap.TryGetValue(serviceType, out var subOrchestrationFactoryType))
+            {
+                var subOrchestrationFactory = (ISubOrchestrationFactory)serviceProvider.GetRequiredService(subOrchestrationFactoryType);
+
+                return subOrchestrationFactory.GetSubOrchestrationObject(context);
             }
 
             return serviceProvider.GetService(serviceType);

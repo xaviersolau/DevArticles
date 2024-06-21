@@ -8,11 +8,13 @@ namespace DurableFunctionApp1.Business
         private readonly ILogger<MyOrchestration> logger;
         private readonly IMyActivities myActivities;
         private readonly IEventHub<HelloEvent> helloEventHub;
+        private readonly IAnotherOrchestration anotherOrchestration;
 
-        public MyOrchestration(ILogger<MyOrchestration> logger, IMyActivities myActivities, IEventHub<HelloEvent> helloEventHub)
+        public MyOrchestration(ILogger<MyOrchestration> logger, IMyActivities myActivities, IEventHub<HelloEvent> helloEventHub, IAnotherOrchestration anotherOrchestration)
         {
             this.myActivities = myActivities;
             this.helloEventHub = helloEventHub;
+            this.anotherOrchestration = anotherOrchestration;
             this.logger = logger;
         }
 
@@ -64,7 +66,54 @@ namespace DurableFunctionApp1.Business
 
             outputs.Add(await myActivities.SayHello("London", "comment 4"));
 
+            logger.LogInformation($"Running sub-orchestration.");
+            var res = await anotherOrchestration.RunOrchestrator("toto");
+            logger.LogInformation($"Sub-orchestration result is {res}.");
+
             return outputs;
+        }
+    }
+
+    public class AnotherOrchestration : IAnotherOrchestration
+    {
+        private readonly ILogger<AnotherOrchestration> logger;
+        private readonly IAnotherActivity anotherActivity;
+
+        public AnotherOrchestration(ILogger<AnotherOrchestration> logger, IAnotherActivity anotherActivity)
+        {
+            this.logger = logger;
+            this.anotherActivity = anotherActivity;
+        }
+
+        public async Task<string> RunOrchestrator(string parameter)
+        {
+            this.logger.LogInformation($"RUN ANOTHERORCHESTRATION.");
+
+            await this.anotherActivity.SayHello("step1");
+
+
+            await this.anotherActivity.SayHello("step2");
+
+            //throw new NotImplementedException("not yet!");
+
+            return $"From AnotherOrchestration {parameter}";
+        }
+    }
+
+    public class AnotherActivity : IAnotherActivity
+    {
+        private readonly ILogger<AnotherActivity> logger;
+
+        public AnotherActivity(ILogger<AnotherActivity> logger)
+        {
+            this.logger = logger;
+        }
+
+        public Task<string> SayHello(string name)
+        {
+            logger.LogInformation($"Hello {name}");
+
+            return Task.FromResult($"back with {name}");
         }
     }
 }

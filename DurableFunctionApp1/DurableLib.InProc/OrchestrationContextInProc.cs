@@ -37,7 +37,7 @@ namespace DurableLib.InProc
 
         public Task<T> WaitForExternalEvent<T>(string eventName, CancellationToken cancellationToken = default) where T : IEvent
         {
-            return this.context.WaitForExternalEvent<T>(eventName, TimeSpan.FromMinutes(5), cancellationToken);
+            return this.context.WaitForExternalEvent<T>(eventName, TimeSpan.FromDays(9999), cancellationToken);
         }
 
         public Task SendEvent<T>(string id, string eventName, T eventToSend) where T : IEvent
@@ -50,6 +50,11 @@ namespace DurableLib.InProc
             };
 
             return this.context.CallActivityAsync("SendEventInternal" + typeof(T).Name, payload);
+        }
+
+        public Task<TResult> CallSubOrchestrationAsync<TResult, TPayload>(string name, TPayload payload)
+        {
+            return this.context.CallSubOrchestratorAsync<TResult>(name, payload);
         }
     }
     public class SendEventPayload<T> where T : IEvent

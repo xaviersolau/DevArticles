@@ -10,12 +10,14 @@ namespace DurableLib
     {
         private readonly IServiceCollection services;
         private readonly IDictionary<Type, Type> activityFactoryMap;
+        private readonly IDictionary<Type, Type> subOrchestrationFactoryMap;
         private readonly IList<Type> factoryToRegister;
 
-        public OrchestrationOptions(IServiceCollection services, IDictionary<Type, Type> activityFactoryMap, IList<Type> factoryToRegister)
+        public OrchestrationOptions(IServiceCollection services, IDictionary<Type, Type> activityFactoryMap, IDictionary<Type, Type> subOrchestrationFactoryMap, IList<Type> factoryToRegister)
         {
             this.services = services;
             this.activityFactoryMap = activityFactoryMap;
+            this.subOrchestrationFactoryMap = subOrchestrationFactoryMap;
             this.factoryToRegister = factoryToRegister;
         }
 
@@ -45,6 +47,9 @@ namespace DurableLib
             }
 
             factoryToRegister.Add(typeof(IOrchestrationFactory<TOrchestrationInterface>));
+            factoryToRegister.Add(typeof(ISubOrchestrationFactory<TOrchestrationInterface>));
+
+            subOrchestrationFactoryMap.Add(typeof(TOrchestrationInterface), typeof(ISubOrchestrationFactory<TOrchestrationInterface>));
 
             return this;
         }

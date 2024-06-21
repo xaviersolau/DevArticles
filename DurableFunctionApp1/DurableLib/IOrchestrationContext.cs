@@ -15,6 +15,8 @@ namespace DurableLib
 
         Task<TResult> CallActivityAsync<TResult, TPayload>(string name, TPayload payload);
 
+        Task<TResult> CallSubOrchestrationAsync<TResult, TPayload>(string name, TPayload payload);
+
         IOrchestrationTools GetOrchestrationTools();
     }
 }

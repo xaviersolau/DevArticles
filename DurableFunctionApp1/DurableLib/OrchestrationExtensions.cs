@@ -12,10 +12,11 @@ namespace DurableLib
         {
             var factoryToRegister = new List<Type>();
             var activityFactoryMap = new Dictionary<Type, Type>();
-            var options = new OrchestrationOptions(services, activityFactoryMap, factoryToRegister);
+            var subOrchestrationFactoryMap = new Dictionary<Type, Type>();
+            var options = new OrchestrationOptions(services, activityFactoryMap, subOrchestrationFactoryMap, factoryToRegister);
             builder(options);
 
-            services.AddScoped(sp => new OrchestrationCtx(activityFactoryMap));
+            services.AddScoped(sp => new OrchestrationCtx(activityFactoryMap, subOrchestrationFactoryMap));
 
             services.AddTransient(typeof(IEventHub<>), typeof(EventHub<>));
 

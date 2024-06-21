@@ -15,6 +15,8 @@ namespace DurableFunctionApp1.Business
         {
             logger.LogInformation("Saying hello to {name} with comment {comment}.", name, comment);
 
+            //throw new NotImplementedException();
+
             return Task.FromResult($"Hello {name} with {comment}!");
         }
     }

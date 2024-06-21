@@ -1,10 +1,13 @@
-﻿namespace DurableLib
+﻿using DurableLib.Abstractions;
+
+namespace DurableLib
 {
     /// <summary>
     /// From Lib
     /// </summary>
     public class OrchestrationFactory<TOrchestration, TClient> : IOrchestrationFactory<TOrchestration>
         where TClient : OrchestrationClientBase, TOrchestration, new()
+        where TOrchestration : IOrchestration
     {
         public async Task<string> NewOrchestrationAsync(IOrchestrationClient client, Func<TOrchestration, Task> action)
         {
