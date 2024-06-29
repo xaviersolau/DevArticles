@@ -19,6 +19,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DurableLib.InProc", "Durabl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DurableLib.Isolated", "DurableLib.Isolated\DurableLib.Isolated.csproj", "{510A09E2-310A-47FB-86D0-A0A5401A4539}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DurableConsole", "DurableConsole\DurableConsole.csproj", "{DAC629E5-2436-4B6E-8365-D74C6C3E0E92}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DurableLib.Simple", "DurableLib.Simple\DurableLib.Simple.csproj", "{B88A89DC-B6A9-4CE4-84F9-6CA8179822EC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +61,14 @@ Global
 		{510A09E2-310A-47FB-86D0-A0A5401A4539}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{510A09E2-310A-47FB-86D0-A0A5401A4539}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{510A09E2-310A-47FB-86D0-A0A5401A4539}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DAC629E5-2436-4B6E-8365-D74C6C3E0E92}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DAC629E5-2436-4B6E-8365-D74C6C3E0E92}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DAC629E5-2436-4B6E-8365-D74C6C3E0E92}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAC629E5-2436-4B6E-8365-D74C6C3E0E92}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B88A89DC-B6A9-4CE4-84F9-6CA8179822EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B88A89DC-B6A9-4CE4-84F9-6CA8179822EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B88A89DC-B6A9-4CE4-84F9-6CA8179822EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B88A89DC-B6A9-4CE4-84F9-6CA8179822EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
