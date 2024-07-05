@@ -18,7 +18,7 @@ namespace DurableConsole
                 builder.AddConsole();
             });
 
-            services.AddOrchestration(
+            services.AddSimpleOrchestration(
                 options => {
                     options.LookupAssemblies = [typeof(Program).Assembly];
 
@@ -39,21 +39,39 @@ namespace DurableConsole
         }
 
         private readonly IOrchestrationFactory<IMyOrchestration> myOrchestrationFactory;
+        private readonly ISimpleOrchestrationManager orchestrationManager;
 
-        public Program(IOrchestrationFactory<IMyOrchestration> myOrchestrationFactory)
+        public Program(IOrchestrationFactory<IMyOrchestration> myOrchestrationFactory, ISimpleOrchestrationManager orchestrationManager)
         {
             this.myOrchestrationFactory = myOrchestrationFactory;
+            this.orchestrationManager = orchestrationManager;
         }
 
         private async Task RunAsync(string parameter)
         {
-            var instanceId = await this.myOrchestrationFactory
+            var instanceId1 = await this.myOrchestrationFactory
                 .NewOrchestrationAsync(o => o.RunOrchestrator(parameter));
 
-            Console.WriteLine($"Instance: {instanceId}");
+            var instanceId2 = await this.myOrchestrationFactory
+                .NewOrchestrationAsync(o => o.RunOrchestrator(parameter));
+
+            Console.WriteLine($"Instance: {instanceId1}");
+            Console.WriteLine($"Instance: {instanceId2}");
 
 
+            Console.WriteLine($"Key to send the message to instance: {instanceId1}");
+            Console.ReadKey();
 
+            await this.orchestrationManager.SendEventToAsync(instanceId1, "HelloEvent", new HelloEvent
+            {
+                Hello = "Hello world",
+                InstanceId = instanceId2,
+            });
+
+            Console.WriteLine($"Waiting end of instance: {instanceId1}");
+            await this.orchestrationManager.AwaitOrchestration(instanceId1);
+            Console.WriteLine($"Waiting end of instance: {instanceId2}");
+            await this.orchestrationManager.AwaitOrchestration(instanceId2);
         }
     }
 }

@@ -10,125 +10,67 @@ using System.Threading.Tasks;
 
 namespace DurableConsole
 {
-    public class AnotherOrchestrationSubClientFactory : ISubOrchestrationFactory<IAnotherOrchestration>
+    public class AnotherOrchestrationSubClientFactory : ASimpleOrchestrationSubClientFactory<IAnotherOrchestration, AnotherOrchestrationSubClient>
     {
-        private readonly IServiceProvider serviceProvider;
-
         public AnotherOrchestrationSubClientFactory(IServiceProvider serviceProvider)
+            : base(serviceProvider)
         {
-            this.serviceProvider = serviceProvider;
-        }
-
-        public object GetSubOrchestrationObject(IOrchestrationContext context)
-        {
-            return this.serviceProvider.GetRequiredService<IAnotherOrchestration>();
         }
     }
 
-    public class AnotherOrchestrationClientFactory : IOrchestrationFactory<IAnotherOrchestration>
+    public class AnotherOrchestrationSubClient : SimpleOrchestrationSubClientBase<IAnotherOrchestration>, IAnotherOrchestration
     {
-        private readonly IServiceProvider serviceProvider;
+        public async Task<string> RunOrchestrator(string parameter)
+        {
+            return await RunSubOrchestrationAsync(subOrchestration => subOrchestration.RunOrchestrator(parameter));
+        }
+    }
 
+    public class AnotherOrchestrationClientFactory : ASimpleOrchestrationClientFactory<IAnotherOrchestration>
+    {
         public AnotherOrchestrationClientFactory(IServiceProvider serviceProvider)
+            : base(serviceProvider)
         {
-            this.serviceProvider = serviceProvider;
-        }
-
-        public async Task<string> NewOrchestrationAsync(IOrchestrationClient client, Func<IAnotherOrchestration, Task> action)
-        {
-            var orchestrationCtx = this.serviceProvider.GetRequiredService<OrchestrationCtx>();
-
-            var context = new OrchestrationContextSimple(this.serviceProvider);
-
-            orchestrationCtx.SetContext(context);
-            try
-            {
-                var orchestration = this.serviceProvider.GetRequiredService<IAnotherOrchestration>();
-
-                await action(orchestration);
-            }
-            finally
-            {
-                orchestrationCtx.SetContext(null);
-            }
-
-            return "";
         }
     }
 
-    public sealed class AnotherActivityClientFactory : IActivityFactory<IAnotherActivity>
+    public sealed class AnotherActivityClientFactory : ASimpleActivitiesClientFactory<IAnotherActivity>
     {
-        private readonly IServiceProvider serviceProvider;
-
         public AnotherActivityClientFactory(IServiceProvider serviceProvider)
+            : base(serviceProvider)
         {
-            this.serviceProvider = serviceProvider;
-        }
-
-        public object GetActivityObject(IOrchestrationContext context)
-        {
-            return this.serviceProvider.GetRequiredService<IAnotherActivity>();
         }
     }
 
-    public class MyOrchestrationSubClientFactory : ISubOrchestrationFactory<IMyOrchestration>
+    public class MyOrchestrationSubClientFactory : ASimpleOrchestrationSubClientFactory<IMyOrchestration, MyOrchestrationSubClient>
     {
-        private readonly IServiceProvider serviceProvider;
-
         public MyOrchestrationSubClientFactory(IServiceProvider serviceProvider)
+            : base(serviceProvider)
         {
-            this.serviceProvider = serviceProvider;
-        }
-
-        public object GetSubOrchestrationObject(IOrchestrationContext context)
-        {
-            return this.serviceProvider.GetRequiredService<IOrchestrationContext>();
         }
     }
 
-    public class MyOrchestrationClientFactory : IOrchestrationFactory<IMyOrchestration>
+    public class MyOrchestrationSubClient : SimpleOrchestrationSubClientBase<IMyOrchestration>, IMyOrchestration
     {
-        private readonly IServiceProvider serviceProvider;
+        public async Task<List<string>> RunOrchestrator(string parameter)
+        {
+            return await RunSubOrchestrationAsync(subOrchestration => subOrchestration.RunOrchestrator(parameter));
+        }
+    }
 
+    public class MyOrchestrationClientFactory : ASimpleOrchestrationClientFactory<IMyOrchestration>
+    {
         public MyOrchestrationClientFactory(IServiceProvider serviceProvider)
+            : base(serviceProvider)
         {
-            this.serviceProvider = serviceProvider;
-        }
-
-        public async Task<string> NewOrchestrationAsync(IOrchestrationClient client, Func<IMyOrchestration, Task> action)
-        {
-            var orchestrationCtx = this.serviceProvider.GetRequiredService<OrchestrationCtx>();
-
-            var context = new OrchestrationContextSimple(this.serviceProvider);
-
-            orchestrationCtx.SetContext(context);
-            try
-            {
-                var orchestration = this.serviceProvider.GetRequiredService<IMyOrchestration>();
-
-                await action(orchestration);
-            }
-            finally
-            {
-                orchestrationCtx.SetContext(null);
-            }
-
-            return "";
         }
     }
-    public sealed class MyActivitiesClientFactory : IActivityFactory<IMyActivities>
+
+    public sealed class MyActivitiesClientFactory : ASimpleActivitiesClientFactory<IMyActivities>
     {
-        private readonly IServiceProvider serviceProvider;
-
         public MyActivitiesClientFactory(IServiceProvider serviceProvider)
+            :base(serviceProvider)
         {
-            this.serviceProvider = serviceProvider;
-        }
-
-        public object GetActivityObject(IOrchestrationContext context)
-        {
-            return this.serviceProvider.GetRequiredService<IMyActivities>();
         }
     }
-
 }
