@@ -7,6 +7,10 @@ using SoloX.GeneratorTools.Core.CSharp.Generator.Impl;
 using FctCodeGen.Patterns.Impl;
 using Microsoft.CodeAnalysis;
 using DurableLib.Isolated;
+using SoloX.GeneratorTools.Core.CSharp.Model.Resolver;
+using DurableLib.InProc;
+using DurableLib.Simple;
+using SoloX.GeneratorTools.Core.CSharp.Generator;
 
 namespace FctCodeGen
 {
@@ -70,145 +74,135 @@ namespace FctCodeGen
             workspace.RegisterFile(GetContentFile("./Patterns/Impl/EventPatternInProcessActivityFunction.cs"));
             workspace.RegisterFile(GetContentFile("./Patterns/Impl/OrchestrationPatternSubClient.cs"));
             workspace.RegisterFile(GetContentFile("./Patterns/Impl/OrchestrationPatternSubClientFactory.cs"));
+            workspace.RegisterFile(GetContentFile("./Patterns/Impl/ActivityPatternSimpleClient.cs"));
+            workspace.RegisterFile(GetContentFile("./Patterns/Impl/ActivityPatternSimpleClientFactory.cs"));
+            workspace.RegisterFile(GetContentFile("./Patterns/Impl/OrchestrationPatternSimpleClient.cs"));
+            workspace.RegisterFile(GetContentFile("./Patterns/Impl/OrchestrationPatternSimpleClientFactory.cs"));
+            workspace.RegisterFile(GetContentFile("./Patterns/Impl/OrchestrationPatternSimpleSubClient.cs"));
+            workspace.RegisterFile(GetContentFile("./Patterns/Impl/OrchestrationPatternSimpleSubClientFactory.cs"));
 
             var resolver = workspace.DeepLoad();
 
+            var generationContext = GetGenerationContext(resolver);
+
+            switch (generationContext)
+            {
+                case GenerationContext.AzureFunctionInProcess:
+                    GenerateAzureFunctionInProcess(
+                        fileGenerator,
+                        locator,
+                        resolver,
+                        files);
+                    break;
+                case GenerationContext.AzureFunctionIsolated:
+                    GenerateAzureFunctionIsolated(
+                        fileGenerator,
+                        locator,
+                        resolver,
+                        files);
+                    break;
+                case GenerationContext.Simple:
+                    GenerateSimple(
+                        fileGenerator,
+                        locator,
+                        resolver,
+                        files);
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        private void GenerateSimple(IWriter fileGenerator, RelativeLocator locator, IDeclarationResolver resolver, IEnumerable<ICSharpFile> files)
+        {
+            Generate(typeof(ActivityPatternSimpleClient), fileGenerator, locator, resolver, files);
+            Generate(typeof(ActivityPatternSimpleClientFactory), fileGenerator, locator, resolver, files);
+            Generate(typeof(OrchestrationPatternSimpleClient), fileGenerator, locator, resolver, files);
+            Generate(typeof(OrchestrationPatternSimpleClientFactory), fileGenerator, locator, resolver, files);
+            Generate(typeof(OrchestrationPatternSimpleSubClient), fileGenerator, locator, resolver, files);
+            Generate(typeof(OrchestrationPatternSimpleSubClientFactory), fileGenerator, locator, resolver, files);
+            Generate(typeof(ActivityPatternPayload), fileGenerator, locator, resolver, files);
+            Generate(typeof(OrchestrationPatternPayload), fileGenerator, locator, resolver, files);
+        }
+
+        private void GenerateAzureFunctionIsolated(IWriter fileGenerator, RelativeLocator locator, IDeclarationResolver resolver, IEnumerable<ICSharpFile> files)
+        {
+            Generate(typeof(ActivityPatternIsolatedFunction), fileGenerator, locator, resolver, files);
+            Generate(typeof(ActivityPatternClient), fileGenerator, locator, resolver, files);
+            Generate(typeof(ActivityPatternClientFactory), fileGenerator, locator, resolver, files);
+            Generate(typeof(OrchestrationPatternIsolatedFunction), fileGenerator, locator, resolver, files);
+            Generate(typeof(OrchestrationPatternClient), fileGenerator, locator, resolver, files);
+            Generate(typeof(OrchestrationPatternClientFactory), fileGenerator, locator, resolver, files);
+            Generate(typeof(OrchestrationPatternSubClient), fileGenerator, locator, resolver, files);
+            Generate(typeof(OrchestrationPatternSubClientFactory), fileGenerator, locator, resolver, files);
+            Generate(typeof(ActivityPatternPayload), fileGenerator, locator, resolver, files);
+            Generate(typeof(OrchestrationPatternPayload), fileGenerator, locator, resolver, files);
+        }
+
+        private void GenerateAzureFunctionInProcess(IWriter fileGenerator, RelativeLocator locator, IDeclarationResolver resolver, IEnumerable<ICSharpFile> files)
+        {
+            Generate(typeof(EventPatternInProcessActivityFunction), fileGenerator, locator, resolver, files);
+            Generate(typeof(ActivityPatternInProcessFunction), fileGenerator, locator, resolver, files);
+            Generate(typeof(ActivityPatternClient), fileGenerator, locator, resolver, files);
+            Generate(typeof(ActivityPatternClientFactory), fileGenerator, locator, resolver, files);
+            Generate(typeof(OrchestrationPatternInProcessFunction), fileGenerator, locator, resolver, files);
+            Generate(typeof(OrchestrationPatternClient), fileGenerator, locator, resolver, files);
+            Generate(typeof(OrchestrationPatternClientFactory), fileGenerator, locator, resolver, files);
+            Generate(typeof(OrchestrationPatternSubClient), fileGenerator, locator, resolver, files);
+            Generate(typeof(OrchestrationPatternSubClientFactory), fileGenerator, locator, resolver, files);
+            Generate(typeof(ActivityPatternPayload), fileGenerator, locator, resolver, files);
+            Generate(typeof(OrchestrationPatternPayload), fileGenerator, locator, resolver, files);
+        }
+
+        private IEnumerable<IGeneratedItem> Generate(Type patternType, IWriter fileGenerator, RelativeLocator locator, IDeclarationResolver resolver, IEnumerable<ICSharpFile> files)
+        {
+            var generator1 = new AutomatedGenerator(
+                            fileGenerator,
+                            locator,
+                            resolver,
+                            patternType,
+                            this.logger);
+
+            return generator1.Generate(files);
+        }
+
+        private GenerationContext GetGenerationContext(IDeclarationResolver resolver)
+        {
             var isolatedContext = resolver.Find(typeof(OrchestrationContextIsolated).FullName);
 
-            if (isolatedContext == null || isolatedContext.Count() == 0)
+            if (isolatedContext != null && isolatedContext.Count() != 0)
             {
-                var generator0 = new AutomatedGenerator(
-                    fileGenerator,
-                    locator,
-                    resolver,
-                    typeof(EventPatternInProcessActivityFunction),
-                    this.logger);
-
-                var generatedItems0 = generator0.Generate(files);
+                return GenerationContext.AzureFunctionIsolated;
             }
 
-            if (isolatedContext != null && isolatedContext.Any())
-            {
-                var generator1 = new AutomatedGenerator(
-                    fileGenerator,
-                    locator,
-                    resolver,
-                    typeof(ActivityPatternIsolatedFunction),
-                    this.logger);
+            var inProcessContext = resolver.Find(typeof(OrchestrationContextInProc).FullName);
 
-                var generatedItems1 = generator1.Generate(files);
-            }
-            else
+            if (inProcessContext != null && inProcessContext.Count() != 0)
             {
-                var generator1 = new AutomatedGenerator(
-                    fileGenerator,
-                    locator,
-                    resolver,
-                    typeof(ActivityPatternInProcessFunction),
-                    this.logger);
-
-                var generatedItems1 = generator1.Generate(files);
+                return GenerationContext.AzureFunctionInProcess;
             }
 
-            var generator2 = new AutomatedGenerator(
-                fileGenerator,
-                locator,
-                resolver,
-                typeof(ActivityPatternClient),
-                this.logger);
+            var simpleContext = resolver.Find(typeof(OrchestrationContextSimple).FullName);
 
-            var generatedItems2 = generator2.Generate(files);
-
-            var generator3 = new AutomatedGenerator(
-                fileGenerator,
-                locator,
-                resolver,
-                typeof(ActivityPatternClientFactory),
-                this.logger);
-
-            var generatedItems3 = generator3.Generate(files);
-
-            if (isolatedContext != null && isolatedContext.Any())
+            if (simpleContext != null && simpleContext.Count() != 0)
             {
-                var generator4 = new AutomatedGenerator(
-                    fileGenerator,
-                    locator,
-                    resolver,
-                    typeof(OrchestrationPatternIsolatedFunction),
-                    this.logger);
-
-                var generatedItems4 = generator4.Generate(files);
-            }
-            else
-            {
-                var generator4 = new AutomatedGenerator(
-                    fileGenerator,
-                    locator,
-                    resolver,
-                    typeof(OrchestrationPatternInProcessFunction),
-                    this.logger);
-
-                var generatedItems4 = generator4.Generate(files);
+                return GenerationContext.Simple;
             }
 
-            var generator5 = new AutomatedGenerator(
-                fileGenerator,
-                locator,
-                resolver,
-                typeof(OrchestrationPatternClient),
-                this.logger);
-
-            var generatedItems5 = generator5.Generate(files);
-
-            var generator6 = new AutomatedGenerator(
-                fileGenerator,
-                locator,
-                resolver,
-                typeof(OrchestrationPatternClientFactory),
-                this.logger);
-
-            var generatedItems6 = generator6.Generate(files);
-
-            var generator51 = new AutomatedGenerator(
-                fileGenerator,
-                locator,
-                resolver,
-                typeof(OrchestrationPatternSubClient),
-                this.logger);
-
-            var generatedItems51 = generator51.Generate(files);
-
-            var generator61 = new AutomatedGenerator(
-                fileGenerator,
-                locator,
-                resolver,
-                typeof(OrchestrationPatternSubClientFactory),
-                this.logger);
-
-            var generatedItems61 = generator61.Generate(files);
-
-            var generator7 = new AutomatedGenerator(
-                fileGenerator,
-                locator,
-                resolver,
-                typeof(ActivityPatternPayload),
-                this.logger);
-
-            var generatedItems7 = generator7.Generate(files);
-
-            var generator8 = new AutomatedGenerator(
-                fileGenerator,
-                locator,
-                resolver,
-                typeof(OrchestrationPatternPayload),
-                this.logger);
-
-            var generatedItems8 = generator8.Generate(files);
+            return GenerationContext.Unknown;
         }
 
         private static string GetContentFile(string contentFile)
         {
             return Path.Combine(Path.GetDirectoryName(typeof(FunctionGenerator).Assembly.Location)!, contentFile);
         }
+    }
+
+    public enum GenerationContext
+    {
+        Unknown,
+        AzureFunctionIsolated,
+        AzureFunctionInProcess,
+        Simple,
     }
 }

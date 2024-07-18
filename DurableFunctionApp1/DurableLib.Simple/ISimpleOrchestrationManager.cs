@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,135 +13,139 @@ namespace DurableLib.Simple
     {
         Task AwaitOrchestration(string instanceId);
 
+        Task<T> AwaitOrchestration<T>(string instanceId);
+
         Task SendEventToAsync<T>(string instanceId, string eventName, T eventData) where T : IEvent;
+
+        Task RewindAsync(string id, IServiceProvider serviceProvider);
     }
 
     internal interface ISimpleOrchestrationManagerInternal
     {
-        string RegisterNewOrchestration<TOrchestration>(IServiceProvider serviceProvider, Func<TOrchestration, Task> action) where TOrchestration : notnull;
+        Task<string> RegisterNewOrchestrationAsync<TOrchestration, TPayload, TResult>(string id, IServiceProvider serviceProvider, TPayload payload, Expression<Func<TOrchestration, TPayload, Task<TResult>>> action)
+            where TOrchestration : notnull;
 
-        Task<T> RunSubOrchestrationAsync<TOrchestration, T>(IServiceProvider serviceProvider, Func<TOrchestration, Task<T>> action) where TOrchestration : notnull;
+        Task<TReturn> RunSubOrchestrationAsync<TOrchestration, TPayload, TReturn>(IServiceProvider serviceProvider, TPayload payload, Expression<Func<TOrchestration, TPayload, Task<TReturn>>> action)
+            where TOrchestration : notnull;
+
+        Task<TReturn> RunActivityAsync<TActivity, TPayload, TReturn>(IServiceProvider serviceProvider, TPayload payload, Expression<Func<TActivity, TPayload, Task<TReturn>>> action)
+            where TActivity : notnull;
     }
 
     public class SimpleOrchestrationManager : ISimpleOrchestrationManager, ISimpleOrchestrationManagerInternal
     {
-        private Dictionary<Guid, OrchestrationInstance> instances = new Dictionary<Guid, OrchestrationInstance>();
+        private Dictionary<string, OrchestrationContextSimple> instances = new Dictionary<string, OrchestrationContextSimple>();
 
         public Task AwaitOrchestration(string instanceId)
         {
             lock (instances)
             {
-                var task = instances[Guid.Parse(instanceId)].Task;
+                instances.TryGetValue(instanceId, out var context);
 
-                return task ?? Task.CompletedTask;
+                if (context == null)
+                {
+                    throw new InvalidOperationException($"Instance not found {instanceId}");
+                }
+
+                if (context.Task == null)
+                {
+                    throw new InvalidOperationException($"Task not started {instanceId}");
+                }
+
+                return context.Task;
             }
         }
 
-        public string RegisterNewOrchestration<TOrchestration>(IServiceProvider serviceProvider, Func<TOrchestration, Task> action) where TOrchestration : notnull
+        public Task<T> AwaitOrchestration<T>(string instanceId)
         {
-            var id = Guid.NewGuid();
-
-            var asyncServiceScope = serviceProvider.CreateAsyncScope();
-
-            var context = new OrchestrationContextSimple(asyncServiceScope.ServiceProvider);
-
-            var task = async () =>
-            {
-                OrchestrationCtx? orchestrationCtx = null;
-                try
-                {
-                    orchestrationCtx = asyncServiceScope.ServiceProvider.GetRequiredService<OrchestrationCtx>();
-
-                    orchestrationCtx.SetContext(context);
-
-                    var orchestration = asyncServiceScope.ServiceProvider.GetRequiredService<TOrchestration>();
-
-                    await action(orchestration);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-
-                    var instance = instances[id];
-                    instance.Exception = e;
-                }
-                finally
-                {
-                    orchestrationCtx?.SetContext(null);
-
-                    lock (instances)
-                    {
-                        var instance = instances[id];
-                        instance.Task = null;
-                        instance.Context = null;
-                    }
-
-                    await asyncServiceScope.DisposeAsync();
-                }
-            };
-
-            var instance = new OrchestrationInstance
-            {
-                Id = id,
-                Task = task.Invoke(),
-                Context = context,
-            };
-
             lock (instances)
             {
-                instances.Add(id, instance);
-            }
+                instances.TryGetValue(instanceId, out var context);
 
-            return id.ToString();
+                if (context == null)
+                {
+                    throw new InvalidOperationException($"Instance not found {instanceId}");
+                }
+
+                var task = context.Task;
+
+                if (task == null)
+                {
+                    throw new InvalidOperationException($"Task not started {instanceId}");
+                }
+
+                if (task is Task<T> typedTask)
+                {
+                    return typedTask;
+                }
+
+                throw new InvalidOperationException($"Unexpected return type {instanceId}: {task.GetType().GenericTypeArguments.FirstOrDefault()}");
+            }
         }
 
-        public async Task<T> RunSubOrchestrationAsync<TOrchestration, T>(IServiceProvider serviceProvider, Func<TOrchestration, Task<T>> action) where TOrchestration : notnull
+        public Task RewindAsync(string id, IServiceProvider serviceProvider)
         {
-            var id = Guid.NewGuid();
+            OrchestrationContextSimple? context;
 
-            using var asyncServiceScope = serviceProvider.CreateAsyncScope();
-
-            var context = new OrchestrationContextSimple(asyncServiceScope.ServiceProvider);
-
-            var instance = new OrchestrationInstance
+            // Build a new Context or get the existing one
+            lock (instances)
             {
-                Id = id,
-                Context = context,
-            };
+                if (!instances.TryGetValue(id, out context))
+                {
+                    context = new OrchestrationContextSimple(id);
+
+                    instances.Add(id, context);
+                }
+            }
+
+            context.RewindOrchestration(serviceProvider);
+
+            return Task.CompletedTask;
+        }
+
+        public Task<string> RegisterNewOrchestrationAsync<TOrchestration, TPayload, TResult>(string id, IServiceProvider serviceProvider, TPayload payload, Expression<Func<TOrchestration, TPayload, Task<TResult>>> action)
+            where TOrchestration : notnull
+        {
+            if (instances.ContainsKey(id))
+            {
+                throw new InvalidOperationException();
+            }
+
+            var context = new OrchestrationContextSimple(id);
 
             lock (instances)
             {
-                instances.Add(id, instance);
+                instances.Add(id, context);
             }
 
-            OrchestrationCtx? orchestrationCtx = null;
-            try
+            context.InvokeOrchestration(serviceProvider, payload, action);
+
+            return Task.FromResult(id);
+        }
+
+        public Task<TReturn> RunSubOrchestrationAsync<TOrchestration, TPayload, TReturn>(IServiceProvider serviceProvider, TPayload payload, Expression<Func<TOrchestration, TPayload, Task<TReturn>>> action)
+            where TOrchestration : notnull
+        {
+            var id = Guid.NewGuid().ToString();
+
+            var context = new OrchestrationContextSimple(id);
+
+            lock (instances)
             {
-                orchestrationCtx = asyncServiceScope.ServiceProvider.GetRequiredService<OrchestrationCtx>();
-
-                orchestrationCtx.SetContext(context);
-
-                var orchestration = asyncServiceScope.ServiceProvider.GetRequiredService<TOrchestration>();
-
-                return await action(orchestration);
+                instances.Add(id, context);
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
 
-                instance.Exception = e;
+            return context.InvokeOrchestrationAsync(serviceProvider, payload, action);
+        }
 
-                throw;
-            }
-            finally
-            {
-                orchestrationCtx?.SetContext(null);
+        public Task<TReturn> RunActivityAsync<TActivity, TPayload, TReturn>(IServiceProvider serviceProvider, TPayload payload, Expression<Func<TActivity, TPayload, Task<TReturn>>> action)
+            where TActivity : notnull
+        {
+            var orchestrationCtx = serviceProvider.GetRequiredService<OrchestrationCtx>();
 
-                lock (instances)
-                {
-                    instance.Context = null;
-                }
-            }
+            var context = (OrchestrationContextSimple)orchestrationCtx.GetContext();
+
+            return context.InvokeActivityAsync(serviceProvider, payload, action);
         }
 
         public Task SendEventToAsync<T>(string instanceId, string eventName, T eventData) where T : IEvent
@@ -149,26 +154,20 @@ namespace DurableLib.Simple
 
             lock (instances)
             {
-                context = this.instances[Guid.Parse(instanceId)].Context;
+                this.instances.TryGetValue(instanceId, out context);
             }
 
             if (context == null)
             {
+                throw new InvalidOperationException($"Instance not found {instanceId}");
+            }
+
+            if (context.Task != null && context.Task.IsCompleted)
+            {
                 throw new InvalidOperationException($"Instance already completed {instanceId}");
             }
 
-            return context.SendEventInternal<T>(instanceId, eventName, eventData);
+            return context.SendEventInternal(instanceId, eventName, eventData);
         }
-    }
-
-    public class OrchestrationInstance
-    {
-        public Guid Id { get; set; }
-
-        public Task? Task { get; set; }
-
-        public OrchestrationContextSimple? Context { get; set; }
-
-        public Exception? Exception { get; internal set; }
     }
 }

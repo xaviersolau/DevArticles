@@ -1,20 +1,122 @@
 ﻿using DurableLib.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SoloX.ExpressionTools.Transform;
+using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Linq.Expressions;
 using System.Threading.Channels;
 
 namespace DurableLib.Simple
 {
     public class OrchestrationContextSimple : IOrchestrationContext, IOrchestrationTools
     {
-        private readonly IServiceProvider serviceProvider;
+        private IServiceProvider serviceProvider = default!;
 
         private Dictionary<string, Channel<IEvent>> eventQueues = new Dictionary<string, Channel<IEvent>>();
 
-        public OrchestrationContextSimple(IServiceProvider serviceProvider)
+        public Task? Task { get; private set; }
+
+        public string Id { get; private set; }
+
+        public OrchestrationContextSimple(string id)
         {
-            this.serviceProvider = serviceProvider;
+            Id = id;
+        }
+
+        internal void InvokeOrchestration<TOrchestration, TPayload, TResult>(IServiceProvider rootServiceProvider, TPayload payload, Expression<Func<TOrchestration, TPayload, Task<TResult>>> action)
+             where TOrchestration : notnull
+        {
+            Task = InternalInvokeOrchestrationAsync(rootServiceProvider, payload, action);
+        }
+
+        internal async Task<TResult> InvokeOrchestrationAsync<TOrchestration, TPayload, TResult>(IServiceProvider rootServiceProvider, TPayload payload, Expression<Func<TOrchestration, TPayload, Task<TResult>>> action)
+            where TOrchestration : notnull
+        {
+            var task = InternalInvokeOrchestrationAsync(rootServiceProvider, payload, action);
+
+            Task = task;
+
+            return await task;
+        }
+
+        internal void RewindOrchestration(IServiceProvider rootServiceProvider)
+        {
+            // Load all types AssemblyQualifiedName
+            // Load Payload
+            // Load expression
+
+            // TODO Call with loaded data
+            Task = InternalInvokeOrchestrationAsync<string, string, string>(rootServiceProvider, null!, null!);
+        }
+
+        private async Task<TResult> InternalInvokeOrchestrationAsync<TOrchestration, TPayload, TResult>(IServiceProvider rootServiceProvider, TPayload payload, Expression<Func<TOrchestration, TPayload, Task<TResult>>> action)
+            where TOrchestration : notnull
+        {
+            string actionString = action.Serialize();
+
+            string orchestrationType = typeof(TOrchestration).AssemblyQualifiedName!;
+            string payloadType = typeof(TPayload).AssemblyQualifiedName!;
+            string returnType = typeof(TResult).AssemblyQualifiedName!;
+
+            using var asyncServiceScope = rootServiceProvider.CreateAsyncScope();
+
+            this.serviceProvider = asyncServiceScope.ServiceProvider;
+
+            OrchestrationCtx? orchestrationCtx = null;
+            try
+            {
+                orchestrationCtx = serviceProvider.GetRequiredService<OrchestrationCtx>();
+
+                orchestrationCtx.SetContext(this);
+
+                var orchestration = serviceProvider.GetRequiredService<TOrchestration>();
+
+                var actFct = action.Compile();
+
+                return await actFct(orchestration, payload);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+
+                throw;
+            }
+            finally
+            {
+                orchestrationCtx?.SetContext(null);
+
+                serviceProvider = default!;
+            }
+        }
+
+        internal async Task<TReturn> InvokeActivityAsync<TActivity, TPayload, TReturn>(IServiceProvider rootServiceProvider, TPayload payload, Expression<Func<TActivity, TPayload, Task<TReturn>>> action)
+            where TActivity : notnull
+        {
+            string actionString = action.Serialize();
+
+            string payloadType = typeof(TPayload).FullName!;
+            string activityType = typeof(TActivity).FullName!;
+            string returnType = typeof(TReturn).FullName!;
+
+
+            using var asyncServiceScope = rootServiceProvider.CreateAsyncScope();
+
+            try
+            {
+                var activity = asyncServiceScope.ServiceProvider.GetRequiredService<TActivity>();
+
+                var actFct = action.Compile();
+
+                return await actFct(activity, payload);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+
+                throw;
+            }
         }
 
         public Task<TResult> CallActivityAsync<TResult, TPayload>(string name, TPayload payload)

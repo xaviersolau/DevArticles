@@ -24,6 +24,16 @@ namespace DurableLib
             this.context = context;
         }
 
+        public IOrchestrationContext GetContext()
+        {
+            if (this.context == null)
+            {
+                throw new InvalidOperationException("No context found");
+            }
+
+            return this.context;
+        }
+
         public object? GetOrchestrationService(IServiceProvider serviceProvider, Type serviceType)
         {
             if (context == null)

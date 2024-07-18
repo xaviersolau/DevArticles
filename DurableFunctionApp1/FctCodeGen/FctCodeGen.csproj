@@ -27,6 +27,7 @@
     <ProjectReference Include="..\DurableLib.Abstractions\DurableLib.Abstractions.csproj" />
     <ProjectReference Include="..\DurableLib.InProc\DurableLib.InProc.csproj" />
     <ProjectReference Include="..\DurableLib.Isolated\DurableLib.Isolated.csproj" />
+    <ProjectReference Include="..\DurableLib.Simple\DurableLib.Simple.csproj" />
     <ProjectReference Include="..\DurableLib\DurableLib.csproj" />
   </ItemGroup>
 

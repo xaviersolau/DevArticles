@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -28,7 +29,8 @@ namespace DurableLib.Simple
         }
     }
 
-    public abstract class SimpleOrchestrationSubClientBase<TOrchestration> where TOrchestration: notnull
+    public abstract class SimpleOrchestrationSubClientBase<TOrchestration>
+        where TOrchestration: notnull
     {
         private IServiceProvider serviceProvider = default!;
         private ISimpleOrchestrationManagerInternal simpleOrchestrationManager = default!;
@@ -39,9 +41,9 @@ namespace DurableLib.Simple
             this.simpleOrchestrationManager = serviceProvider.GetRequiredService<ISimpleOrchestrationManagerInternal>();
         }
 
-        protected Task<T> RunSubOrchestrationAsync<T>(Func<TOrchestration, Task<T>> handler)
+        protected Task<T> RunSubOrchestrationAsync<TPayload, T>(TPayload payload, Expression<Func<TOrchestration, TPayload, Task<T>>> handler)
         {
-            return simpleOrchestrationManager.RunSubOrchestrationAsync<TOrchestration, T>(this.serviceProvider, handler);
+            return simpleOrchestrationManager.RunSubOrchestrationAsync<TOrchestration, TPayload, T>(this.serviceProvider, payload, handler);
         }
     }
 }
