@@ -7,8 +7,8 @@ namespace AppBlazorTests
     public class WebAppTests
     {
         /// <summary>
-        /// Since we want to run the test with diferent browsers we can une a Theory and inline
-        /// the browser list.
+        /// Since we want to run the test with different browsers we can use a Theory and inline
+        /// the list of browsers.
         /// </summary>
         /// <param name="browser">The browser we are going to use in the test.</param>
         [Theory]
@@ -23,7 +23,7 @@ namespace AppBlazorTests
                 .WithLocalHost(localHostBuilder =>
                 {
                     localHostBuilder
-                        // It tells that we use a local application and we specify a type
+                        // It tells that we use a local application and we provide a type
                         // defined in the application assembly entry point (like Program, App
                         // or any type defined in the host assembly).
                         .UseApplication<AppBlazor.Components.App>()
@@ -43,18 +43,26 @@ namespace AppBlazorTests
                 });
 
             builder = builder
-                // Allows to set up some Playwright options.
+                // Allows you to set up Playwright options.
                 .WithPlaywrightOptions(opt =>
                 {
                     // Tells that we want the browser to be displayed on the screen.
                     opt.Headless = false;
                 })
-                // Allows to set up some Playwright New Context options.
+                // Allows you to set up Playwright New Context options.
                 .WithPlaywrightNewContextOptions(opt =>
                 {
                     // Tells that the viewport size will be 1000x800
                     opt.ViewportSize = new Microsoft.Playwright.ViewportSize()
                     { Width = 1000, Height = 800 };
+                });
+
+            builder = builder
+                // Enable traces.
+                .WithTraces(tracesConfiguration =>
+                {
+                    // Save traces in the given file.
+                    tracesConfiguration.UseOutputFile($"traces_{browser}.zip");
                 });
 
             // Create the playwright test.
