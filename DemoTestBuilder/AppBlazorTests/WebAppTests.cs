@@ -1,0 +1,72 @@
+﻿
+using Microsoft.AspNetCore.Hosting;
+using SoloX.CodeQuality.Playwright;
+
+namespace AppBlazorTests
+{
+    public class WebAppTests
+    {
+        /// <summary>
+        /// Since we want to run the test with diferent browsers we can une a Theory and inline
+        /// the browser list.
+        /// </summary>
+        /// <param name="browser">The browser we are going to use in the test.</param>
+        [Theory]
+        [InlineData(Browser.Chromium)]
+        [InlineData(Browser.Firefox)]
+        [InlineData(Browser.Webkit)]
+        public async Task IsShouldStartTheApplicationAndServeTheMainPage(Browser browser)
+        {
+            // Get a PlaywrightTestBuilder instance.
+            var builder = PlaywrightTestBuilder.Create()
+                // Tells that we run a local host.
+                .WithLocalHost(localHostBuilder =>
+                {
+                    localHostBuilder
+                        // It tells that we use a local application and we specify a type
+                        // defined in the application assembly entry point (like Program, App
+                        // or any type defined in the host assembly).
+                        .UseApplication<AppBlazor.Components.App>()
+                        // Since the test builder is using the WebApplicationFactory, we can
+                        // use the IWebHostBuilder.
+                        .UseWebHostBuilder(webHostBuilder =>
+                        {
+                            // Specify some settings
+                            webHostBuilder.UseSetting("MySettingKey", "MySettingValue");
+
+                            // Specify some service mocks
+                            webHostBuilder.ConfigureServices(services =>
+                            {
+                                // services.AddTransient<IMyService, MyServiceMock>();
+                            });
+                        });
+                });
+
+            builder = builder
+                // Allows to set up some Playwright options.
+                .WithPlaywrightOptions(opt =>
+                {
+                    // Tells that we want the browser to be displayed on the screen.
+                    opt.Headless = false;
+                })
+                // Allows to set up some Playwright New Context options.
+                .WithPlaywrightNewContextOptions(opt =>
+                {
+                    // Tells that the viewport size will be 1000x800
+                    opt.ViewportSize = new Microsoft.Playwright.ViewportSize()
+                    { Width = 1000, Height = 800 };
+                });
+
+            // Create the playwright test.
+            await using var playwrightTest = await builder.BuildAsync();
+
+            // Now he can use the PlaywrightTest and navigate to the page to test.
+            await playwrightTest.GotoPageAsync(string.Empty, async page =>
+            {
+                var body = page.Locator("body");
+
+                await body.WaitForAsync();
+            });
+        }
+    }
+}
