@@ -16,15 +16,12 @@ public class WebAppTests
     [InlineData(Browser.Webkit)]
     public async Task IsShouldStartTheApplicationAndServeTheMainPage(Browser browser)
     {
-        var webAppPath = Path.GetDirectoryName(typeof(WebAppTests).Assembly.Location);
-
         // Get a PlaywrightTestBuilder instance.
         var builder = PlaywrightTestBuilder.Create()
             // Tells that we run a local host.
             .WithLocalHost(localHostBuilder =>
             {
                 localHostBuilder
-                    .UsePortRange(new PortRange(5050, 5051))
                     // It tells that we use a local application and we provide a type
                     // defined in the application assembly entry point (like Program, App
                     // or any type defined in the host assembly).
@@ -33,11 +30,14 @@ public class WebAppTests
                     // use the IWebHostBuilder.
                     .UseWebHostBuilder(webHostBuilder =>
                     {
+                        // Get the current project output.
+                        var webAppPath = Path.GetDirectoryName(typeof(WebAppTests).Assembly.Location);
+
+                        // Tells the web host the path where to read the web root static assets.
+                        webHostBuilder.UseWebRoot(Path.Combine(webAppPath!, "build"));
+
                         // Specify some settings
                         webHostBuilder.UseSetting("MySettingKey", "MySettingValue");
-                        //webHostBuilder.UseSetting("", "");
-
-                        webHostBuilder.UseWebRoot(Path.Combine(webAppPath!, "build"));
 
                         // Specify some service mocks
                         webHostBuilder.ConfigureServices(services =>
@@ -73,7 +73,7 @@ public class WebAppTests
         // Create the playwright test.
         await using var playwrightTest = await builder.BuildAsync();
 
-        // Now he can use the PlaywrightTest and navigate to the page to test.
+        // Now we can use the PlaywrightTest and navigate to the page to test.
         await playwrightTest.GotoPageAsync(string.Empty, async page =>
         {
             var body = page.Locator("body");

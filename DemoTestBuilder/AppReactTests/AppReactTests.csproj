@@ -26,12 +26,15 @@
   </ItemGroup>
 
   <Target Name="BuildReactWebApp" BeforeTargets="Build">
+	  <!-- Use npm run build to generate the React application package. -->
 	  <Exec WorkingDirectory="../AppReact/ClientApp" Command="npm run build"></Exec>
 
+	  <!-- Select all files form the package. -->
 	  <ItemGroup>
 		  <BuildItems Include="../AppReact/ClientApp/build/**/*.*" />
 	  </ItemGroup>
 
+	  <!-- And Copy the package in the test output folder. -->
 	  <Copy SourceFiles="@(BuildItems)" DestinationFolder="$(OutputPath)\build\%(RecursiveDir)"></Copy>
   </Target>
 	
