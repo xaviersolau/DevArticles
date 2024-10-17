@@ -12,6 +12,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Doc", "Doc", "{2532A8A2-428
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppReact", "AppReact\AppReact.csproj", "{687BB065-4222-477F-A40F-2320957254E6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppReactTests", "AppReactTests\AppReactTests.csproj", "{EA3BD36D-C33B-403C-A28B-0D98BB808A85}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +30,14 @@ Global
 		{E3B209FC-AD9C-4B08-9AE4-DD18477CA5EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E3B209FC-AD9C-4B08-9AE4-DD18477CA5EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E3B209FC-AD9C-4B08-9AE4-DD18477CA5EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{687BB065-4222-477F-A40F-2320957254E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{687BB065-4222-477F-A40F-2320957254E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{687BB065-4222-477F-A40F-2320957254E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{687BB065-4222-477F-A40F-2320957254E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA3BD36D-C33B-403C-A28B-0D98BB808A85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA3BD36D-C33B-403C-A28B-0D98BB808A85}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA3BD36D-C33B-403C-A28B-0D98BB808A85}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA3BD36D-C33B-403C-A28B-0D98BB808A85}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
