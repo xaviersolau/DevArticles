@@ -68,7 +68,7 @@ namespace AppBlazorTests
             // Create the playwright test.
             await using var playwrightTest = await builder.BuildAsync();
 
-            // Now he can use the PlaywrightTest and navigate to the page to test.
+            // Now we can use the PlaywrightTest and navigate to the page to test.
             await playwrightTest.GotoPageAsync(string.Empty, async page =>
             {
                 var body = page.Locator("body");

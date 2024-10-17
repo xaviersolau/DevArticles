@@ -234,7 +234,8 @@ on.
 You can run the test as usual using the `dotnet test` command and it will also work on your CI!
 
 Finally, you can run your tests in parallel. The PlaywrightTestBuilder will set up the host so that
-it will use a dedicated network port isolating all tests to prevent conflicts.
+it will be specific to the test and it will use a dedicated network port isolating all tests to
+prevent conflicts.
 
 ----
 
