@@ -4,29 +4,41 @@
 
 # Easy .NET Web App Integration Testing with Playwright
 
-[Playwright](https://playwright.dev/dotnet/) is a great tool to test your web application. In
-addition to being cross-platform, it can be used from many development stacks so you can test
-your web application from JavaScript, TypeScript, Python, Java and .NET.
+## Why Integration Testing Between the Frontend and BFF Matters
 
-Today, I am going to focus on a scenario where your Web Application is working with a .NET
-backend, and you want to perform integration tests for your Web Application testing both your
-web frontend and your backend. In that scenario, it may be interesting to start your
-application by mocking backend services and running your tests from .NET.
-Unfortunately, it can be a pain to set up all you need to be able to do so and you may spend
-hours setting up before writing your first test and I am not even talking about your CI.
+In many web applications, the frontend relies on a Backend-for-Frontend (BFF) layer to manage
+data, handle API calls, and streamline communication with backend services. Integration testing
+between the frontend and BFF ensures that these components work seamlessly together, helping to
+catch issues with data flow and user interactions early on.
 
-Thanks to the [Playwright test builder](https://github.com/xaviersolau/CodeQuality), it has
-never been so easy to test your .NET hosted web application with Playwright. You can focus on
-your test, it will take care of starting your host, the Playwright engine, and installing all
-required dependencies.
+However, integration testing can be complex, especially when the frontend and backend are built
+on different technology stacks. Often, testing requires starting the host, mocking backend services,
+and ensuring that all components communicate properly.
 
-In addition, if you want to run your tests in parallel, no worries. The Playwright test builder
-configures network resources so that your tests are isolated and can run concurrently.
+[Playwright](https://playwright.dev/dotnet/) offers a streamlined solution that is both
+cross-platform and compatible with various development environments, including JavaScript,
+TypeScript, Python, Java, and .NET. Yet, even with Playwright, the setup process can be a challenge,
+potentially consuming hours before you even begin writing your first test—let alone integrating it
+into your CI/CD pipeline.
 
-In this article, I am going to give you an example using
-[Blazor](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor) for the Web Application but
-as long as your application is .NET hosted, you can be using [Angular](https://angular.dev/),
-[React](https://react.dev/) or any other Web technology.
+This article focuses on a scenario where a .NET backend supports your web application, and you want
+to perform integration tests across both the frontend and backend.
+
+With the [Playwright test builder](https://github.com/xaviersolau/CodeQuality), testing your
+.NET-hosted web application has never been easier. The builder automates the setup process,
+handling host startup, Playwright engine configuration, and dependency installation, so you can
+focus on writing your tests.
+
+If you need to run your tests in parallel, the Playwright Test Builder configures network
+resources to ensure isolated, concurrent test execution. 
+
+This automation allows you to write tests with minimal setup, reducing friction and enhancing
+productivity.
+
+In the following sections, I’ll guide you through setting up Playwright for a
+[Blazor](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor) application. I’ll then explain
+how these principles apply to other frameworks, including [React](https://react.dev/) and it
+would be the same for [Angular](https://angular.dev/).
 
 ----
 
@@ -217,6 +229,29 @@ You can run the test as usual using the `dotnet test` command and it will also w
 
 Finally, you can run your tests in parallel. The PlaywrightTestBuilder will set up the host so
 that it will use a dedicated network port isolating all tests to prevent conflicts.
+
+----
+
+## Apply to other frameworks
+
+Now I will adapt the Blazor example using React and it would be the same for Angular.
+
+First, add the React projects. I assume all React required tooling (like node.js, npm...) are installed on your environment and that you are in the solution folder `DemoTestBuilder`:
+
+```bash
+dotnet new react --output AppReact
+dotnet sln add AppReact
+
+dotnet new xunit --output AppReactTests
+dotnet sln add AppReactTests
+
+dotnet add AppReactTests/AppReactTests.csproj reference AppReact/AppReact.csproj
+
+cd AppReactTests
+dotnet add package SoloX.CodeQuality.Playwright
+```
+
+From this point, having all React project ready, we can write our test like in the Blazor example. 
 
 ----
 
