@@ -91,11 +91,105 @@ it to the default namespace. Alternatively, you can use the using statement in y
 
 ----
 
+## Create a production service
+
+For the purpose of this article, we are going to add a 'Production' service that will provide the welcome
+message displayed in the home page of the Web application.
+
+First, we add the service interface `IWelcomeMessageService` in a `Services` folder created in the
+application project:
+
+```csharp
+namespace AppBlazor.Services
+{
+    /// <summary>
+    /// Service interface that will by injected and used in the application Home page.
+    /// </summary>
+    public interface IWelcomeMessageService
+    {
+        /// <summary>
+        /// Get the production welcome message.
+        /// </summary>
+        string GetMessage();
+    }
+}
+```
+
+Then, we can add the production service implementation `WelcomeMessageService` that will be replaced in
+the tests:
+
+```csharp
+namespace AppBlazor.Services
+{
+    /// <summary>
+    /// Production service implementation that will be replaced in the test project.
+    /// </summary>
+    public class WelcomeMessageService : IWelcomeMessageService
+    {
+        /// <summary>
+        /// Get the production welcome message.
+        /// </summary>
+        public string GetMessage()
+        {
+            return "Welcome to your new app in Production.";
+        }
+    }
+}
+```
+
+Let's register it in the `Program.cs` file:
+
+```csharp
+// Register the production service.
+builder.Services.AddTransient<IWelcomeMessageService, WelcomeMessageService>();
+```
+
+Finally, we can use it in the home page in the file `Components/Pages/Home.cs` removing the hardcoded
+welcome message and using the service instead:
+
+```razor
+@page "/"
+
+@inject Services.IWelcomeMessageService welcomeMessageService
+
+<PageTitle>Home</PageTitle>
+
+<h1>Hello, world!</h1>
+
+@welcomeMessageService.GetMessage()
+```
+
+----
+
 ## Write the tests
 
 Now that we have the solution ready, we can start writing a test.
 
-Let's create a basic test class `WebAppTests` that is going to test that the Web Application is
+For this example, we are going to replace the `IWelcomeMessageService` production
+implementation with the test implementation `TestWelcomeMessageService`.
+
+```csharp
+using AppBlazor.Services;
+
+namespace AppBlazorTests
+{
+    /// <summary>
+    /// Test service implementation that will replace the one in the application.
+    /// </summary>
+    public class TestWelcomeMessageService : IWelcomeMessageService
+    {
+        /// <summary>
+        /// Get the test welcome message.
+        /// </summary>
+        public string GetMessage()
+        {
+            return "Welcome to your Test.";
+        }
+    }
+}
+```
+
+Now, let's create a basic test class `WebAppTests` that is going to test that the Web Application is
 working and serving the main page using different browsers.
 
 ```csharp
@@ -152,11 +246,14 @@ var builder = PlaywrightTestBuilder.Create()
                 // Specify some service mocks
                 webHostBuilder.ConfigureServices(services =>
                 {
-                    // services.AddTransient<IMyService, MyServiceMock>();
+                    // Replace the IWelcomeMessageService implementation.
+                    services.AddTransient<IWelcomeMessageService, TestWelcomeMessageService>();
                 });
             });
     });
 ```
+
+
 
 Additionally, it is possible to specify the Playwright options like:
 * Headless to tell if we want the browser to be displayed on the screen;

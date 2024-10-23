@@ -1,5 +1,7 @@
 ﻿
+using AppBlazor.Services;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using SoloX.CodeQuality.Playwright;
 
 namespace AppBlazorTests
@@ -37,7 +39,8 @@ namespace AppBlazorTests
                             // Specify some service mocks
                             webHostBuilder.ConfigureServices(services =>
                             {
-                                // services.AddTransient<IMyService, MyServiceMock>();
+                                // Replace the IWelcomeMessageService implementation.
+                                services.AddTransient<IWelcomeMessageService, TestWelcomeMessageService>();
                             });
                         });
                 });
@@ -48,13 +51,14 @@ namespace AppBlazorTests
                 {
                     // Tells that we want the browser to be displayed on the screen.
                     opt.Headless = false;
+                    //opt.SlowMo = 10000;
                 })
                 // Allows you to set up Playwright New Context options.
                 .WithPlaywrightNewContextOptions(opt =>
                 {
                     // Tells that the viewport size will be 1000x800
                     opt.ViewportSize = new Microsoft.Playwright.ViewportSize()
-                    { Width = 1000, Height = 800 };
+                    { Width = 800, Height = 500 };
                 });
 
             builder = builder

@@ -1,10 +1,14 @@
 using AppBlazor.Components;
+using AppBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+// Register the production service.
+builder.Services.AddTransient<IWelcomeMessageService, WelcomeMessageService>();
 
 var app = builder.Build();
 

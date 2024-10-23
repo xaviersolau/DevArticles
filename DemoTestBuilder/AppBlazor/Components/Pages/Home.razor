@@ -1,7 +1,9 @@
 ﻿@page "/"
 
+@inject Services.IWelcomeMessageService welcomeMessageService
+
 <PageTitle>Home</PageTitle>
 
 <h1>Hello, world!</h1>
 
-Welcome to your new app.
+@welcomeMessageService.GetMessage()
