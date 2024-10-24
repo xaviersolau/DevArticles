@@ -12,7 +12,7 @@ namespace AppBlazorTests
         /// </summary>
         public string GetMessage()
         {
-            return "Welcome to your Test.";
+            return "<p data-test=\"test-message\">Welcome to your Test.</p>";
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿
 using AppBlazor.Services;
+using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using SoloX.CodeQuality.Playwright;
@@ -78,6 +79,12 @@ namespace AppBlazorTests
                 var body = page.Locator("body");
 
                 await body.WaitForAsync();
+
+                var message = page.Locator("//*[@data-test=\"test-message\"]");
+
+                var txt = await message.TextContentAsync();
+
+                txt.Should().Be("Welcome to your Test.");
             });
         }
     }

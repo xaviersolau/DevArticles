@@ -4,14 +4,14 @@
 
 # Easy .NET Web App Integration Testing with Playwright
 
-## Integration Testing Between the Frontend and BFF
+## Integration Testing Between Frontend and BFF
 
 In many web applications, the frontend relies on a Backend-for-Frontend (BFF) layer to manage data,
 handle API calls, and streamline communication with backend services. Integration testing between
-the frontend and BFF ensures that these components work seamlessly together, helping to catch issues
-with data flow and user interactions early on.
+the frontend and the BFF ensures that these components work seamlessly together, helping to catch
+issues with data flow and user interactions early on.
 
-However, integration testing can be complex, especially when the frontend and backend are built on
+However, integration testing can be complex, especially when frontend and backend are built on
 different technology stacks. Often, testing requires starting the host, mocking backend services,
 and ensuring that all components communicate properly.
 
@@ -22,7 +22,7 @@ potentially consuming hours before you even begin writing your first test. I am 
 about integrating it into your CI/CD pipeline.
 
 This article focuses on a scenario where a .NET backend supports your web application, and you want
-to perform integration tests across both the frontend and backend.
+to perform integration tests across both the frontend and the backend.
 
 ---
 
@@ -103,7 +103,7 @@ application project:
 namespace AppBlazor.Services
 {
     /// <summary>
-    /// Service interface that will by injected and used in the application Home page.
+    /// Service interface that will be injected and used in the application Home page.
     /// </summary>
     public interface IWelcomeMessageService
     {
@@ -156,7 +156,7 @@ welcome message and using the service instead:
 
 <h1>Hello, world!</h1>
 
-@welcomeMessageService.GetMessage()
+@((MarkupString)welcomeMessageService.GetMessage())
 ```
 
 ----
@@ -222,8 +222,9 @@ this step we need to tell where to find the Application entry point assembly spe
 (like Program or App for example) and we will be able to override some app settings and/or some app
 services.
 
-> Behind the scene, the PlaywrightTestBuilder is using a WebApplicationFactory so we can access the
-> `IWebHostBuilder` to customize and/or override settings and services.
+> Behind the scene, the PlaywrightTestBuilder is using a
+> [WebApplicationFactory](https://learn.microsoft.com/aspnet/core/test/integration-tests?view=aspnetcore-8.0)
+> so we can access the `IWebHostBuilder` to customize and/or override settings and services.
 
 ```csharp
 // Get a PlaywrightTestBuilder instance.
@@ -283,7 +284,7 @@ builder = builder
     });
 ```
 
-We can also configure the builder to enable trace generation, which can be helpful for debugging
+We can also configure the builder to enable trace generation, which can be helpful in debugging
 and understanding the behavior of your tests:
 
 ```csharp
@@ -303,7 +304,8 @@ builder = builder
 
 Once the builder is configured, we can instantiate the PlaywrightTest and run the test. In this
 example, we are simply opening the browser to target the host index and verifying that we can locate the
-body element within the page.
+body element within the page. In addition we can also verify that the home page displays the message
+provided by the `IWelcomeMessageService` checking the text set in the service mock.
 
 > Do not forget the `await using` since `IPlaywrightTest` is a `IAsyncDisposable`.
 
@@ -363,7 +365,7 @@ your application from your development environment.
 In order to be able to test it, we need to build the React application package in a dedicated build
 step in the test project.
 
-Here is the target we need to add in the `AppReactTests.csproj`:
+Here is the target we need to add to the `AppReactTests.csproj`:
 
 ```xml
   <Target Name="BuildReactWebApp" BeforeTargets="Build">
